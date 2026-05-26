@@ -1,0 +1,8 @@
+# compiled output
+/node_modules
+/.next
+
+API_Documentation.md
+CLAUDE.md
+README.md
+SocketEvents.md
