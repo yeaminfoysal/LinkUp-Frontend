@@ -29,10 +29,7 @@ export const RightPanel: React.FC = () => {
 
   // Don't render right panel if closed or on hidden paths
   const isHiddenRoute = pathname === '/friends' || pathname === '/notifications' || pathname === '/settings' || pathname === '/groups' || pathname === '/saved';
-  
-  if (!isRightPanelOpen || isHiddenRoute) {
-    return null;
-  }
+  const shouldRender = isRightPanelOpen && !isHiddenRoute;
 
   // Fetch friends list for Feed/Profile views
   const { data: friendships = [] } = useQuery<Friendship[]>({
@@ -41,7 +38,7 @@ export const RightPanel: React.FC = () => {
       const res = await api.get('/friends');
       return res.data;
     },
-    enabled: isFeed || isProfile,
+    enabled: !!shouldRender && (isFeed || isProfile),
   });
 
   // Fetch suggestions (fetch users query as suggestions)
@@ -52,8 +49,12 @@ export const RightPanel: React.FC = () => {
       const res = await api.get('/users/search?query=a&limit=4');
       return res.data;
     },
-    enabled: isFeed,
+    enabled: !!shouldRender && isFeed,
   });
+
+  if (!shouldRender) {
+    return null;
+  }
 
   // Filter online friends
   const onlineFriends = friendships.filter((f) => {

@@ -1,8 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuthStore } from '../../../store/auth.store';
-import { useUIStore } from '../../../store/ui.store';
+import { useTheme } from 'next-themes';
 import Button from '../../../components/ui/Button';
 import Avatar from '../../../components/shared/Avatar';
 import { Settings, Moon, Sun, Monitor, Shield, Bell, User, Check } from 'lucide-react';
@@ -10,7 +10,14 @@ import toast from '../../../components/ui/Toast';
 
 export default function SettingsPage() {
   const { user } = useAuthStore();
-  const { theme, setTheme } = useUIStore();
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const currentTheme = mounted ? theme : 'dark';
 
   const handleSaveSettings = () => {
     toast.success('Settings saved successfully');
@@ -65,7 +72,7 @@ export default function SettingsPage() {
               <button
                 onClick={() => setTheme('light')}
                 className={`p-4 rounded-xl border flex flex-col items-center gap-3 cursor-pointer text-center transition-all duration-200 ${
-                  theme === 'light'
+                  currentTheme === 'light'
                     ? 'border-violet-500 bg-violet-500/5 text-violet-650'
                     : 'border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-900/50'
                 }`}
@@ -83,7 +90,7 @@ export default function SettingsPage() {
               <button
                 onClick={() => setTheme('dark')}
                 className={`p-4 rounded-xl border flex flex-col items-center gap-3 cursor-pointer text-center transition-all duration-200 ${
-                  theme === 'dark'
+                  currentTheme === 'dark'
                     ? 'border-violet-500 bg-violet-500/5 text-violet-400'
                     : 'border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-900/50'
                 }`}

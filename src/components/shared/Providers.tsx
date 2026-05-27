@@ -39,7 +39,7 @@ export const Providers: React.FC<ProvidersProps> = ({ children }) => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+      <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} storageKey="linkup-theme">
         {children}
         <ToastContainer />
       </ThemeProvider>
