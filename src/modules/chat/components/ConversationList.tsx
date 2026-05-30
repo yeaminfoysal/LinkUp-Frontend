@@ -13,10 +13,12 @@ import api from '../../../services/api';
 import { Friendship } from '../../../types/user.types';
 import { Conversation } from '../../../types/conversation.types';
 import Button from '../../../components/ui/Button';
+import { useRouter } from 'next/navigation';
 
 export const ConversationList: React.FC = () => {
   const { conversations, isLoading, createDirectConversation } = useChat();
   const { activeConversationId, setActiveConversationId, onlineUserIds } = useChatStore();
+  const router = useRouter();
   const [search, setSearch] = useState('');
 
   // Fetch friends list to show in active friends strip
@@ -126,7 +128,7 @@ export const ConversationList: React.FC = () => {
               onClick={() => {
                 setActiveConversationId(c.id);
                 // In a responsive shell, route to conversation ID page
-                window.location.href = `/messages/${c.id}`;
+                router.push(`/messages/${c.id}`);
               }}
             />
           ))

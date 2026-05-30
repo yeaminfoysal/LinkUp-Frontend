@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { Home, MessageSquare, Users, Bell, User, Menu } from 'lucide-react';
 import { useUnreadCount } from '../../hooks/useUnreadCount';
 import { useUIStore } from '../../store/ui.store';
+import { useAuthHydration } from '../../hooks/useAuthHydration';
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuthStore();
@@ -17,15 +18,17 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   const { unreadMessagesCount, unreadNotificationsCount } = useUnreadCount();
   const { user } = useAuthStore();
   const { toggleSidebar } = useUIStore();
+  const isHydrated = useAuthHydration();
 
   // Redirect if not authenticated
   useEffect(() => {
+    if (!isHydrated) return;
     if (!isAuthenticated) {
       router.replace('/auth/login');
     }
-  }, [isAuthenticated, router]);
+  }, [isHydrated, isAuthenticated, router]);
 
-  if (!isAuthenticated) {
+  if (!isHydrated || !isAuthenticated) {
     return null;
   }
 

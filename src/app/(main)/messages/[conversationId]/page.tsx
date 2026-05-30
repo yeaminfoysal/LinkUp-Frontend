@@ -1,8 +1,9 @@
 'use client';
 
-import React, { use } from 'react';
+import React, { use, useEffect } from 'react';
 import ConversationList from '../../../../modules/chat/components/ConversationList';
 import ChatWindow from '../../../../modules/chat/components/ChatWindow';
+import { useChatStore } from '../../../../store/chat.store';
 
 interface ConversationPageProps {
   params: Promise<{
@@ -13,6 +14,16 @@ interface ConversationPageProps {
 export default function ConversationPage({ params }: ConversationPageProps) {
   const resolvedParams = use(params);
   const conversationId = resolvedParams.conversationId;
+  const { setActiveConversationId } = useChatStore();
+
+  useEffect(() => {
+    if (conversationId) {
+      setActiveConversationId(conversationId);
+    }
+    return () => {
+      setActiveConversationId(null);
+    };
+  }, [conversationId, setActiveConversationId]);
 
   return (
     <div className="flex h-[calc(100vh-100px)] md:h-[calc(100vh-48px)] overflow-hidden border border-zinc-150 dark:border-zinc-850 rounded-2xl bg-white dark:bg-zinc-950">

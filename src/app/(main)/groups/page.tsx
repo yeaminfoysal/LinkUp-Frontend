@@ -11,11 +11,13 @@ import { Users2, Plus, ArrowRight, Loader2, Check } from 'lucide-react';
 import toast from '../../../components/ui/Toast';
 import { Conversation } from '../../../types/conversation.types';
 import { Friendship } from '../../../types/user.types';
+import { useRouter } from 'next/navigation';
 
 export default function GroupsPage() {
   const { conversations, isLoading, createGroup } = useChat();
   const { friends } = useFriends();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const router = useRouter();
   const [groupName, setGroupName] = useState('');
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -106,7 +108,7 @@ export default function GroupsPage() {
               </div>
 
               <Button
-                onClick={() => (window.location.href = `/messages/${g.id}`)}
+                onClick={() => router.push(`/messages/${g.id}`)}
                 variant="outline"
                 size="sm"
                 className="flex items-center gap-1 text-xs"

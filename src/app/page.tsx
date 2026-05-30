@@ -3,19 +3,23 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '../store/auth.store';
+import { useAuthHydration } from '../hooks/useAuthHydration';
 import { Loader2 } from 'lucide-react';
 
 export default function RootPage() {
   const { isAuthenticated } = useAuthStore();
   const router = useRouter();
+  const isHydrated = useAuthHydration();
 
   useEffect(() => {
+    if (!isHydrated) return;
+
     if (isAuthenticated) {
       router.replace('/feed');
     } else {
       router.replace('/auth/login');
     }
-  }, [isAuthenticated, router]);
+  }, [isHydrated, isAuthenticated, router]);
 
   return (
     <div className="flex min-h-screen w-full items-center justify-center bg-zinc-950">

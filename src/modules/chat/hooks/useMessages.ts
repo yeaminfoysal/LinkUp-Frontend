@@ -12,8 +12,17 @@ export const useMessages = (conversationId: string | null) => {
   // Upward infinite query for loading message history
   const messagesQuery = useInfiniteQuery({
     queryKey: ['messages', conversationId],
-    queryFn: ({ pageParam }) =>
-      chatService.getMessages(conversationId!, pageParam as string | undefined),
+    queryFn: async ({ pageParam }) => {
+      console.log('useMessages queryFn: fetching messages for:', conversationId, 'pageParam:', pageParam);
+      try {
+        const data = await chatService.getMessages(conversationId!, pageParam as string | undefined);
+        console.log('useMessages queryFn: fetch success, data length:', data?.data?.length);
+        return data;
+      } catch (err) {
+        console.error('useMessages queryFn: fetch error:', err);
+        throw err;
+      }
+    },
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (lastPage) => (lastPage.hasMore ? lastPage.nextCursor : undefined),
     enabled: !!conversationId,

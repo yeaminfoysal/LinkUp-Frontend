@@ -5,7 +5,7 @@ import { registerPresenceHandlers } from './handlers/presence.handler';
 import { registerNotificationHandlers } from './handlers/notification.handler';
 import { registerFeedHandlers } from './handlers/feed.handler';
 
-const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3000';
+const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3001';
 
 export const connectSocket = (accessToken: string) => {
   const { socket: existingSocket, setSocket, setConnected } = useSocketStore.getState();
