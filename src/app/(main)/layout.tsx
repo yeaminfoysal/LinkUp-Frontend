@@ -10,6 +10,7 @@ import { Home, MessageSquare, Users, Bell, User, Menu } from 'lucide-react';
 import { useUnreadCount } from '../../hooks/useUnreadCount';
 import { useUIStore } from '../../store/ui.store';
 import { useAuthHydration } from '../../hooks/useAuthHydration';
+import { useFriends } from '../../modules/friends/hooks/useFriends';
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuthStore();
@@ -19,6 +20,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   const { user } = useAuthStore();
   const { toggleSidebar } = useUIStore();
   const isHydrated = useAuthHydration();
+  const { pendingRequests } = useFriends();
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -36,7 +38,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   const navItems = [
     { label: 'Feed', href: '/feed', icon: Home },
     { label: 'Chat', href: '/messages', icon: MessageSquare, badge: unreadMessagesCount },
-    { label: 'Friends', href: '/friends', icon: Users },
+    { label: 'Friends', href: '/friends', icon: Users, badge: pendingRequests.length },
     { label: 'Alerts', href: '/notifications', icon: Bell, badge: unreadNotificationsCount },
     { label: 'Profile', href: `/profile/${user?.username || ''}`, icon: User },
   ];

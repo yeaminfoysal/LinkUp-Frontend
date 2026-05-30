@@ -4,6 +4,7 @@ import { registerChatHandlers } from './handlers/chat.handler';
 import { registerPresenceHandlers } from './handlers/presence.handler';
 import { registerNotificationHandlers } from './handlers/notification.handler';
 import { registerFeedHandlers } from './handlers/feed.handler';
+import { registerFriendHandlers } from './handlers/friend.handler';
 
 const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3001';
 
@@ -50,6 +51,7 @@ export const connectSocket = (accessToken: string) => {
   registerPresenceHandlers(socket);
   registerNotificationHandlers(socket);
   registerFeedHandlers(socket);
+  registerFriendHandlers(socket);
 
   setSocket(socket);
   return socket;

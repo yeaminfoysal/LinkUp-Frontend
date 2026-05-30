@@ -9,6 +9,7 @@ import { useUnreadCount } from '../../hooks/useUnreadCount';
 import { useTheme } from 'next-themes';
 import Avatar from './Avatar';
 import useAuth from '../../modules/auth/hooks/useAuth';
+import useFriends from '../../modules/friends/hooks/useFriends';
 import {
   Home,
   MessageSquare,
@@ -37,11 +38,12 @@ export const Sidebar: React.FC = () => {
   }, []);
   const currentTheme = mounted ? theme : 'dark';
   const { unreadMessagesCount, unreadNotificationsCount } = useUnreadCount();
+  const { pendingRequests } = useFriends();
 
   const menuItems = [
     { label: 'Home Feed', href: '/feed', icon: Home },
     { label: 'Messages', href: '/messages', icon: MessageSquare, badge: unreadMessagesCount },
-    { label: 'Friends', href: '/friends', icon: Users },
+    { label: 'Friends', href: '/friends', icon: Users, badge: pendingRequests.length },
     { label: 'Groups', href: '/groups', icon: Users2 },
     { label: 'Notifications', href: '/notifications', icon: Bell, badge: unreadNotificationsCount },
     { label: 'Saved', href: '/saved', icon: Bookmark },

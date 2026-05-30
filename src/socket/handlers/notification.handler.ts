@@ -10,6 +10,16 @@ export const registerNotificationHandlers = (socket: Socket) => {
     queryClient.invalidateQueries({ queryKey: ['notifications'] });
     queryClient.invalidateQueries({ queryKey: ['unreadCounts'] });
 
+    // Real-time invalidations based on notification type
+    if (notification.type === 'NEW_MESSAGE') {
+      queryClient.invalidateQueries({ queryKey: ['conversations'] });
+    } else if (notification.type === 'FRIEND_REQUEST') {
+      queryClient.invalidateQueries({ queryKey: ['pendingRequests'] });
+    } else if (notification.type === 'FRIEND_ACCEPTED') {
+      queryClient.invalidateQueries({ queryKey: ['friends'] });
+      queryClient.invalidateQueries({ queryKey: ['sentRequests'] });
+    }
+
     // Display browser notification if permitted
     if (typeof window !== 'undefined' && 'Notification' in window) {
       if (Notification.permission === 'granted') {

@@ -2,6 +2,8 @@ export type NotificationType =
   | 'NEW_MESSAGE'
   | 'POST_LIKED'
   | 'POST_COMMENTED'
+  | 'FRIEND_REQUEST'
+  | 'FRIEND_ACCEPTED'
   | 'FRIEND_REQUEST_RECEIVED'
   | 'FRIEND_REQUEST_ACCEPTED';
 
