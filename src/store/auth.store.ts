@@ -23,7 +23,7 @@ const syncCookies = (accessToken: string | null, refreshToken: string | null) =>
   }
 
   if (refreshToken) {
-    document.cookie = `refreshToken=${encodeURIComponent(refreshToken)}; Path=/; Max-Age=2592000; SameSite=Lax`;
+    document.cookie = `refreshToken=${encodeURIComponent(refreshToken)}; Path=/; Max-Age=7776000; SameSite=Lax`;
   } else {
     document.cookie = 'refreshToken=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
   }

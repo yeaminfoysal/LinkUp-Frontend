@@ -101,7 +101,7 @@ api.interceptors.response.use(
         // Call refresh API
         const response = await axios.post(
           `${API_URL}/auth/refresh`,
-          {},
+          { refreshToken },
           {
             withCredentials: true,
             headers: {

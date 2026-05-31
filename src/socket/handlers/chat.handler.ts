@@ -9,15 +9,23 @@ export const registerChatHandlers = (socket: Socket) => {
   socket.on(SOCKET_EVENTS.NEW_MESSAGE, ({ message }: { message: Message }) => {
     const { conversationId } = message;
 
-    // Update messages history query cache instantly
+    // Update messages history query cache instantly and remove temp optimistic messages
     queryClient.setQueryData(['messages', conversationId], (old: any) => {
       if (!old) return old;
-      // Prepend message to the first page of messages
       const pages = [...old.pages];
       if (pages.length > 0) {
+        const filteredData = pages[0].data.filter((msg: Message) => {
+          if (msg.id === message.id) return false;
+          if (msg.id.startsWith('temp-') && msg.senderId === message.senderId) {
+            if (message.content && msg.content === message.content) return false;
+            if (message.mediaUrl && msg.mediaUrl === message.mediaUrl) return false;
+          }
+          return true;
+        });
+
         pages[0] = {
           ...pages[0],
-          data: [message, ...pages[0].data],
+          data: [message, ...filteredData],
         };
       }
       return { ...old, pages };

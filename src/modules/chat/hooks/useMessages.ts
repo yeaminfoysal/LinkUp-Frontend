@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import chatService from '../services/chat.service';
 import { useSocketStore } from '../../../store/socket.store';
+import { useAuthStore } from '../../../store/auth.store';
 import { SOCKET_EVENTS } from '../../../socket/socket.events';
 import { Message } from '../../../types/message.types';
 
@@ -52,8 +53,48 @@ export const useMessages = (conversationId: string | null) => {
   }, [socket, conversationId, queryClient]);
 
   // Send Message Method
-  const sendMessage = (content: string, type: 'TEXT' | 'IMAGE' | 'VIDEO' | 'FILE' = 'TEXT', extra = {}) => {
+  const sendMessage = (content: string, type: 'TEXT' | 'IMAGE' | 'VIDEO' | 'FILE' = 'TEXT', extra: any = {}) => {
     if (!socket || !conversationId) return;
+
+    const currentUser = useAuthStore.getState().user;
+    if (currentUser) {
+      const tempId = `temp-${Date.now()}`;
+      const optimisticMessage: Message = {
+        id: tempId,
+        conversationId,
+        senderId: currentUser.id,
+        content: type === 'TEXT' ? content : null,
+        type,
+        mediaUrl: extra.mediaUrl || null,
+        mediaSize: extra.mediaSize || null,
+        mediaType: extra.mimeType || null,
+        replyToId: extra.replyToId || null,
+        editedAt: null,
+        isDeleted: false,
+        deletedAt: null,
+        deletedFor: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        sender: {
+          id: currentUser.id,
+          name: currentUser.name,
+          username: currentUser.username,
+          avatar: currentUser.avatar,
+        },
+      };
+
+      queryClient.setQueryData(['messages', conversationId], (old: any) => {
+        if (!old) return old;
+        const pages = [...old.pages];
+        if (pages.length > 0) {
+          pages[0] = {
+            ...pages[0],
+            data: [optimisticMessage, ...pages[0].data],
+          };
+        }
+        return { ...old, pages };
+      });
+    }
 
     socket.emit(SOCKET_EVENTS.SEND_MESSAGE, {
       conversationId,
