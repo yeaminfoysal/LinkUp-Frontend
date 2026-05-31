@@ -41,37 +41,66 @@ export const useFeed = () => {
   const likeMutation = useMutation({
     mutationFn: feedService.likePost,
     onMutate: async (postId) => {
-      // Optimistic Update
       await queryClient.cancelQueries({ queryKey: ['feed'] });
-      const previousFeed = queryClient.getQueryData(['feed']);
+      await queryClient.cancelQueries({ queryKey: ['savedPosts'] });
+      await queryClient.cancelQueries({ queryKey: ['userPosts'] });
 
-      queryClient.setQueryData(['feed'], (old: any) => {
-        if (!old) return old;
-        return {
-          ...old,
-          pages: old.pages.map((page: any) => ({
-            ...page,
-            items: page.items.map((post: Post) =>
-              post.id === postId
-                ? {
-                    ...post,
-                    hasLiked: true,
-                    _count: {
-                      ...post._count,
-                      likes: (post._count?.likes || 0) + 1,
-                    },
-                  }
-                : post
-            ),
-          })),
-        };
+      const postQueries = queryClient.getQueryCache().findAll({
+        predicate: (query) => ['feed', 'savedPosts', 'userPosts'].includes(query.queryKey[0] as string),
       });
 
-      return { previousFeed };
+      const snapshots = postQueries.map((query) => ({
+        queryKey: query.queryKey,
+        data: queryClient.getQueryData(query.queryKey),
+      }));
+
+      snapshots.forEach(({ queryKey, data }) => {
+        if (!data) return;
+        queryClient.setQueryData(queryKey, (old: any) => {
+          if (!old) return old;
+          const updatePost = (post: Post) => {
+            if (post.id !== postId) return post;
+            return {
+              ...post,
+              hasLiked: true,
+              _count: {
+                ...post._count,
+                likes: (post._count?.likes || 0) + 1,
+              },
+            };
+          };
+
+          if (old.pages && Array.isArray(old.pages)) {
+            return {
+              ...old,
+              pages: old.pages.map((page: any) => {
+                if (page.items && Array.isArray(page.items)) {
+                  return { ...page, items: page.items.map(updatePost) };
+                }
+                if (Array.isArray(page)) {
+                  return page.map(updatePost);
+                }
+                return page;
+              }),
+            };
+          }
+          if (old.items && Array.isArray(old.items)) {
+            return { ...old, items: old.items.map(updatePost) };
+          }
+          if (Array.isArray(old)) {
+            return old.map(updatePost);
+          }
+          return old;
+        });
+      });
+
+      return { snapshots };
     },
     onError: (err, postId, context) => {
-      if (context?.previousFeed) {
-        queryClient.setQueryData(['feed'], context.previousFeed);
+      if (context?.snapshots) {
+        context.snapshots.forEach(({ queryKey, data }) => {
+          queryClient.setQueryData(queryKey, data);
+        });
       }
       toast.error('Failed to like post');
     },
@@ -87,35 +116,65 @@ export const useFeed = () => {
     mutationFn: feedService.unlikePost,
     onMutate: async (postId) => {
       await queryClient.cancelQueries({ queryKey: ['feed'] });
-      const previousFeed = queryClient.getQueryData(['feed']);
+      await queryClient.cancelQueries({ queryKey: ['savedPosts'] });
+      await queryClient.cancelQueries({ queryKey: ['userPosts'] });
 
-      queryClient.setQueryData(['feed'], (old: any) => {
-        if (!old) return old;
-        return {
-          ...old,
-          pages: old.pages.map((page: any) => ({
-            ...page,
-            items: page.items.map((post: Post) =>
-              post.id === postId
-                ? {
-                    ...post,
-                    hasLiked: false,
-                    _count: {
-                      ...post._count,
-                      likes: Math.max(0, (post._count?.likes || 0) - 1),
-                    },
-                  }
-                : post
-            ),
-          })),
-        };
+      const postQueries = queryClient.getQueryCache().findAll({
+        predicate: (query) => ['feed', 'savedPosts', 'userPosts'].includes(query.queryKey[0] as string),
       });
 
-      return { previousFeed };
+      const snapshots = postQueries.map((query) => ({
+        queryKey: query.queryKey,
+        data: queryClient.getQueryData(query.queryKey),
+      }));
+
+      snapshots.forEach(({ queryKey, data }) => {
+        if (!data) return;
+        queryClient.setQueryData(queryKey, (old: any) => {
+          if (!old) return old;
+          const updatePost = (post: Post) => {
+            if (post.id !== postId) return post;
+            return {
+              ...post,
+              hasLiked: false,
+              _count: {
+                ...post._count,
+                likes: Math.max(0, (post._count?.likes || 0) - 1),
+              },
+            };
+          };
+
+          if (old.pages && Array.isArray(old.pages)) {
+            return {
+              ...old,
+              pages: old.pages.map((page: any) => {
+                if (page.items && Array.isArray(page.items)) {
+                  return { ...page, items: page.items.map(updatePost) };
+                }
+                if (Array.isArray(page)) {
+                  return page.map(updatePost);
+                }
+                return page;
+              }),
+            };
+          }
+          if (old.items && Array.isArray(old.items)) {
+            return { ...old, items: old.items.map(updatePost) };
+          }
+          if (Array.isArray(old)) {
+            return old.map(updatePost);
+          }
+          return old;
+        });
+      });
+
+      return { snapshots };
     },
     onError: (err, postId, context) => {
-      if (context?.previousFeed) {
-        queryClient.setQueryData(['feed'], context.previousFeed);
+      if (context?.snapshots) {
+        context.snapshots.forEach(({ queryKey, data }) => {
+          queryClient.setQueryData(queryKey, data);
+        });
       }
       toast.error('Failed to unlike post');
     },
@@ -131,22 +190,55 @@ export const useFeed = () => {
     mutationFn: feedService.savePost,
     onMutate: async (postId) => {
       await queryClient.cancelQueries({ queryKey: ['feed'] });
-      const previousFeed = queryClient.getQueryData(['feed']);
+      await queryClient.cancelQueries({ queryKey: ['savedPosts'] });
+      await queryClient.cancelQueries({ queryKey: ['userPosts'] });
 
-      queryClient.setQueryData(['feed'], (old: any) => {
-        if (!old) return old;
-        return {
-          ...old,
-          pages: old.pages.map((page: any) => ({
-            ...page,
-            items: page.items.map((post: Post) =>
-              post.id === postId ? { ...post, hasSaved: true } : post
-            ),
-          })),
-        };
+      const postQueries = queryClient.getQueryCache().findAll({
+        predicate: (query) => ['feed', 'savedPosts', 'userPosts'].includes(query.queryKey[0] as string),
       });
 
-      return { previousFeed };
+      const snapshots = postQueries.map((query) => ({
+        queryKey: query.queryKey,
+        data: queryClient.getQueryData(query.queryKey),
+      }));
+
+      snapshots.forEach(({ queryKey, data }) => {
+        if (!data) return;
+        queryClient.setQueryData(queryKey, (old: any) => {
+          if (!old) return old;
+          const updatePost = (post: Post) => {
+            if (post.id !== postId) return post;
+            return {
+              ...post,
+              hasSaved: true,
+            };
+          };
+
+          if (old.pages && Array.isArray(old.pages)) {
+            return {
+              ...old,
+              pages: old.pages.map((page: any) => {
+                if (page.items && Array.isArray(page.items)) {
+                  return { ...page, items: page.items.map(updatePost) };
+                }
+                if (Array.isArray(page)) {
+                  return page.map(updatePost);
+                }
+                return page;
+              }),
+            };
+          }
+          if (old.items && Array.isArray(old.items)) {
+            return { ...old, items: old.items.map(updatePost) };
+          }
+          if (Array.isArray(old)) {
+            return old.map(updatePost);
+          }
+          return old;
+        });
+      });
+
+      return { snapshots };
     },
     onSuccess: () => {
       toast.success('Post bookmarked!');
@@ -155,8 +247,10 @@ export const useFeed = () => {
       queryClient.invalidateQueries({ queryKey: ['savedPosts'] });
     },
     onError: (err, postId, context) => {
-      if (context?.previousFeed) {
-        queryClient.setQueryData(['feed'], context.previousFeed);
+      if (context?.snapshots) {
+        context.snapshots.forEach(({ queryKey, data }) => {
+          queryClient.setQueryData(queryKey, data);
+        });
       }
       toast.error('Failed to save bookmark');
     },
@@ -167,22 +261,55 @@ export const useFeed = () => {
     mutationFn: feedService.unsavePost,
     onMutate: async (postId) => {
       await queryClient.cancelQueries({ queryKey: ['feed'] });
-      const previousFeed = queryClient.getQueryData(['feed']);
+      await queryClient.cancelQueries({ queryKey: ['savedPosts'] });
+      await queryClient.cancelQueries({ queryKey: ['userPosts'] });
 
-      queryClient.setQueryData(['feed'], (old: any) => {
-        if (!old) return old;
-        return {
-          ...old,
-          pages: old.pages.map((page: any) => ({
-            ...page,
-            items: page.items.map((post: Post) =>
-              post.id === postId ? { ...post, hasSaved: false } : post
-            ),
-          })),
-        };
+      const postQueries = queryClient.getQueryCache().findAll({
+        predicate: (query) => ['feed', 'savedPosts', 'userPosts'].includes(query.queryKey[0] as string),
       });
 
-      return { previousFeed };
+      const snapshots = postQueries.map((query) => ({
+        queryKey: query.queryKey,
+        data: queryClient.getQueryData(query.queryKey),
+      }));
+
+      snapshots.forEach(({ queryKey, data }) => {
+        if (!data) return;
+        queryClient.setQueryData(queryKey, (old: any) => {
+          if (!old) return old;
+          const updatePost = (post: Post) => {
+            if (post.id !== postId) return post;
+            return {
+              ...post,
+              hasSaved: false,
+            };
+          };
+
+          if (old.pages && Array.isArray(old.pages)) {
+            return {
+              ...old,
+              pages: old.pages.map((page: any) => {
+                if (page.items && Array.isArray(page.items)) {
+                  return { ...page, items: page.items.map(updatePost) };
+                }
+                if (Array.isArray(page)) {
+                  return page.map(updatePost);
+                }
+                return page;
+              }),
+            };
+          }
+          if (old.items && Array.isArray(old.items)) {
+            return { ...old, items: old.items.map(updatePost) };
+          }
+          if (Array.isArray(old)) {
+            return old.map(updatePost);
+          }
+          return old;
+        });
+      });
+
+      return { snapshots };
     },
     onSuccess: () => {
       toast.success('Bookmark removed');
@@ -191,10 +318,65 @@ export const useFeed = () => {
       queryClient.invalidateQueries({ queryKey: ['savedPosts'] });
     },
     onError: (err, postId, context) => {
-      if (context?.previousFeed) {
-        queryClient.setQueryData(['feed'], context.previousFeed);
+      if (context?.snapshots) {
+        context.snapshots.forEach(({ queryKey, data }) => {
+          queryClient.setQueryData(queryKey, data);
+        });
       }
       toast.error('Failed to remove bookmark');
+    },
+  });
+
+  // Update Post Mutation
+  const updatePostMutation = useMutation({
+    mutationFn: (variables: { postId: string; data: { content?: string; mediaUrls?: string[]; visibility?: string } }) =>
+      feedService.updatePost(variables.postId, variables.data),
+    onSuccess: (updatedPost) => {
+      toast.success('Post updated successfully!');
+      const postQueries = queryClient.getQueryCache().findAll({
+        predicate: (query) => ['feed', 'savedPosts', 'userPosts'].includes(query.queryKey[0] as string),
+      });
+
+      postQueries.forEach((query) => {
+        queryClient.setQueryData(query.queryKey, (old: any) => {
+          if (!old) return old;
+          const updatePostItem = (post: Post) => {
+            if (post.id !== updatedPost.id) return post;
+            return {
+              ...post,
+              content: updatedPost.content,
+              mediaUrls: updatedPost.mediaUrls,
+              visibility: updatedPost.visibility,
+              updatedAt: updatedPost.updatedAt,
+            };
+          };
+
+          if (old.pages && Array.isArray(old.pages)) {
+            return {
+              ...old,
+              pages: old.pages.map((page: any) => {
+                if (page.items && Array.isArray(page.items)) {
+                  return { ...page, items: page.items.map(updatePostItem) };
+                }
+                if (Array.isArray(page)) {
+                  return page.map(updatePostItem);
+                }
+                return page;
+              }),
+            };
+          }
+          if (old.items && Array.isArray(old.items)) {
+            return { ...old, items: old.items.map(updatePostItem) };
+          }
+          if (Array.isArray(old)) {
+            return old.map(updatePostItem);
+          }
+          return old;
+        });
+      });
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || 'Failed to update post');
     },
   });
 
@@ -211,6 +393,9 @@ export const useFeed = () => {
     // Mutations
     createPost: createPostMutation.mutateAsync,
     isCreatingPost: createPostMutation.isPending,
+    
+    updatePost: updatePostMutation.mutateAsync,
+    isUpdatingPost: updatePostMutation.isPending,
     
     likePost: likeMutation.mutate,
     unlikePost: unlikeMutation.mutate,
