@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import postsService from '../services/posts.service';
 import toast from '../../../components/ui/Toast';
 
 export const usePost = (postId?: string) => {
   const queryClient = useQueryClient();
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
 
   // Fetch comments query
   const commentsQuery = useQuery({
@@ -40,7 +42,12 @@ export const usePost = (postId?: string) => {
 
   // Upload File Mutation
   const uploadMutation = useMutation({
-    mutationFn: postsService.uploadFile,
+    mutationFn: async (file: File) => {
+      setUploadProgress(0);
+      return postsService.uploadFile(file, (percent) => {
+        setUploadProgress(percent);
+      });
+    },
   });
 
   return {
@@ -55,6 +62,7 @@ export const usePost = (postId?: string) => {
 
     uploadFile: uploadMutation.mutateAsync,
     isUploading: uploadMutation.isPending,
+    uploadProgress,
   };
 };
 export default usePost;

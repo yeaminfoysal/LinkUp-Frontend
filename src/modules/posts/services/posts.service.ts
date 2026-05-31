@@ -1,23 +1,35 @@
 import api from '../../../services/api';
 
 export const postsService = {
-  uploadFile: async (file: File) => {
+  uploadFile: async (file: File, onProgress?: (percent: number) => void) => {
     const formData = new FormData();
     formData.append('file', file);
     const res = await api.post('/uploads', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
+      onUploadProgress: (progressEvent) => {
+        if (progressEvent.total && onProgress) {
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          onProgress(percentCompleted);
+        }
+      },
     });
     return res.data; // returns { mediaUrl, mimeType, mediaSize, name }
   },
 
-  uploadFiles: async (files: File[]) => {
+  uploadFiles: async (files: File[], onProgress?: (percent: number) => void) => {
     const formData = new FormData();
     files.forEach((f) => formData.append('files', f));
     const res = await api.post('/uploads/multiple', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
+      },
+      onUploadProgress: (progressEvent) => {
+        if (progressEvent.total && onProgress) {
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          onProgress(percentCompleted);
+        }
       },
     });
     return res.data; // returns array of uploaded file objects

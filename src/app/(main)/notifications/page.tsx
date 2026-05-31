@@ -30,7 +30,7 @@ export default function NotificationsPage() {
   // Mark all as read mutation
   const readAllMutation = useMutation({
     mutationFn: async () => {
-      return api.post('/notifications/mark-read', {});
+      return api.patch('/notifications/read-all', {});
     },
     onSuccess: () => {
       toast.success('All notifications marked as read');

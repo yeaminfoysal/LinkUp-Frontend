@@ -77,6 +77,8 @@ export const useFeed = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['feed'] });
+      queryClient.invalidateQueries({ queryKey: ['userPosts'] });
+      queryClient.invalidateQueries({ queryKey: ['savedPosts'] });
     },
   });
 
@@ -119,6 +121,8 @@ export const useFeed = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['feed'] });
+      queryClient.invalidateQueries({ queryKey: ['userPosts'] });
+      queryClient.invalidateQueries({ queryKey: ['savedPosts'] });
     },
   });
 
@@ -147,6 +151,8 @@ export const useFeed = () => {
     onSuccess: () => {
       toast.success('Post bookmarked!');
       queryClient.invalidateQueries({ queryKey: ['feed'] });
+      queryClient.invalidateQueries({ queryKey: ['userPosts'] });
+      queryClient.invalidateQueries({ queryKey: ['savedPosts'] });
     },
     onError: (err, postId, context) => {
       if (context?.previousFeed) {
@@ -181,6 +187,8 @@ export const useFeed = () => {
     onSuccess: () => {
       toast.success('Bookmark removed');
       queryClient.invalidateQueries({ queryKey: ['feed'] });
+      queryClient.invalidateQueries({ queryKey: ['userPosts'] });
+      queryClient.invalidateQueries({ queryKey: ['savedPosts'] });
     },
     onError: (err, postId, context) => {
       if (context?.previousFeed) {

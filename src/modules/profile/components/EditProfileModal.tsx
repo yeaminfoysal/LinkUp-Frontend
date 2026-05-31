@@ -26,7 +26,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
   const [avatar, setAvatar] = useState(profile?.avatar || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { uploadFile, isUploading } = usePost();
+  const { uploadFile, isUploading, uploadProgress } = usePost();
 
   const handleAvatarClick = () => {
     fileInputRef.current?.click();
@@ -48,21 +48,13 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) {
-      toast.warning('Name is required');
-      return;
-    }
-
+    setIsSubmitting(true);
     try {
-      setIsSubmitting(true);
-      await onSave({
-        name: name.trim(),
-        bio: bio.trim(),
-        avatar,
-      });
+      await onSave({ name, bio, avatar });
+      toast.success('Profile updated successfully!');
       onClose();
-    } catch (err) {
-      console.error('Failed to update profile:', err);
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to update profile');
     } finally {
       setIsSubmitting(false);
     }
@@ -80,9 +72,12 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
               size="xl"
               className="border-4 border-violet-500/25 group-hover:brightness-75 transition-all shadow-md"
             />
-            <div className="absolute inset-0 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className={`absolute inset-0 flex flex-col items-center justify-center text-white bg-black/40 rounded-full transition-all duration-200 ${isUploading ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
               {isUploading ? (
-                <Loader2 className="w-6 h-6 animate-spin" />
+                <div className="flex flex-col items-center gap-1">
+                  <Loader2 className="w-5.5 h-5.5 animate-spin text-white" />
+                  <span className="text-[10px] font-bold text-white tracking-wider">{uploadProgress}%</span>
+                </div>
               ) : (
                 <Camera className="w-6 h-6" />
               )}

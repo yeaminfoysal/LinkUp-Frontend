@@ -16,7 +16,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({ onSend, onKeyPress }
   const [attachment, setAttachment] = useState<any | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const { uploadFile, isUploading } = usePost();
+  const { uploadFile, isUploading, uploadProgress } = usePost();
 
   // Auto-resize textarea height
   useEffect(() => {
@@ -126,7 +126,15 @@ export const MessageInput: React.FC<MessageInputProps> = ({ onSend, onKeyPress }
       )}
 
       {/* Input controls container */}
-      <div className="flex items-end gap-2.5 p-3 rounded-2xl border border-zinc-150 dark:border-zinc-850 bg-white dark:bg-zinc-950 shadow-sm relative">
+      <div className="flex items-end gap-2.5 p-3 rounded-2xl border border-zinc-150 dark:border-zinc-850 bg-white dark:bg-zinc-950 shadow-sm relative overflow-hidden">
+        {isUploading && (
+          <div className="absolute top-0 left-0 right-0 h-1 bg-zinc-100 dark:bg-zinc-900">
+            <div 
+              className="h-full bg-violet-500 transition-all duration-300 ease-out" 
+              style={{ width: `${uploadProgress}%` }}
+            />
+          </div>
+        )}
         <input
           type="file"
           ref={fileInputRef}
@@ -143,7 +151,10 @@ export const MessageInput: React.FC<MessageInputProps> = ({ onSend, onKeyPress }
           title="Attach file"
         >
           {isUploading ? (
-            <Loader2 className="w-5 h-5 animate-spin text-violet-500" />
+            <div className="relative w-5 h-5 flex items-center justify-center">
+              <Loader2 className="w-5 h-5 animate-spin text-violet-500" />
+              <span className="absolute inset-0 flex items-center justify-center text-[7px] font-bold text-violet-600">{uploadProgress}</span>
+            </div>
           ) : (
             <Paperclip className="w-5 h-5" />
           )}

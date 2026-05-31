@@ -18,7 +18,7 @@ interface CreatePostModalProps {
 export const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose }) => {
   const { user } = useAuthStore();
   const { createPost } = useFeed();
-  const { uploadFile, isUploading } = usePost();
+  const { uploadFile, isUploading, uploadProgress } = usePost();
   
   const [content, setContent] = useState('');
   const [visibility, setVisibility] = useState('PUBLIC');
@@ -64,9 +64,10 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClos
       });
       setContent('');
       setMediaUrls([]);
+      toast.success('Post created successfully!');
       onClose();
     } catch (err: any) {
-      console.error('Failed to post:', err);
+      toast.error(err.response?.data?.message || 'Failed to create post');
     } finally {
       setIsSubmitting(false);
     }
@@ -82,11 +83,11 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClos
   const VisibilityIcon = activeOption.icon;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Create Post" size="lg">
+    <Modal isOpen={isOpen} onClose={onClose} title="Create Post" size="md">
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* User Mini Header */}
         <div className="flex items-center gap-3">
-          <Avatar src={user?.avatar} name={user?.name} size="md" />
+          <Avatar src={user?.avatar} name={user?.name || 'U'} size="md" />
           <div className="flex flex-col items-start gap-1">
             <p className="text-sm font-bold text-zinc-900 dark:text-zinc-100">{user?.name}</p>
             {/* Visibility Selector */}
@@ -111,7 +112,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClos
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder={`What's on your mind, ${user?.name.split(' ')[0]}?`}
+          placeholder={`What's on your mind, ${user?.name?.split(' ')[0] || 'there'}?`}
           rows={4}
           className="w-full text-sm bg-transparent border-0 resize-none text-zinc-850 dark:text-zinc-100 placeholder-zinc-400 focus:ring-0 focus:outline-none pr-2"
         />
@@ -131,6 +132,22 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClos
                 </button>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Upload Progress Bar */}
+        {isUploading && (
+          <div className="space-y-1.5 p-3 rounded-xl border border-violet-100 dark:border-violet-950/20 bg-violet-500/5">
+            <div className="flex justify-between items-center text-xs">
+              <span className="text-zinc-500 dark:text-zinc-400 font-medium">Uploading image...</span>
+              <span className="text-violet-500 font-bold">{uploadProgress}%</span>
+            </div>
+            <div className="w-full h-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-violet-500 rounded-full transition-all duration-300 ease-out" 
+                style={{ width: `${uploadProgress}%` }}
+              />
+            </div>
           </div>
         )}
 

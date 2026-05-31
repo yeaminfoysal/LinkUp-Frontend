@@ -12,9 +12,7 @@ export default function SavedPage() {
   const { data: savedData, isLoading } = useQuery<any>({
     queryKey: ['savedPosts'],
     queryFn: async () => {
-      // In the real app, we load saved posts from the backend.
-      // If endpoint doesn't exist, we fall back to a feed subset
-      const res = await api.get('/posts/feed?limit=10');
+      const res = await api.get('/posts/saved?limit=10');
       return res.data;
     },
   });

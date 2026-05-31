@@ -3,6 +3,7 @@
 import React from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import api from '../../../services/api';
+import chatService from '../services/chat.service';
 import { queryClient } from '../../../lib/queryClient';
 import Avatar from '../../../components/shared/Avatar';
 import Button from '../../../components/ui/Button';
@@ -29,6 +30,21 @@ export const ChatInfoPanel: React.FC<ChatInfoPanelProps> = ({ conversationId }) 
     },
     enabled: !!conversationId,
   });
+
+  // Fetch/subscribe to messages to extract shared media
+  const { data: messagesData } = useQuery<any>({
+    queryKey: ['messages', conversationId],
+    queryFn: async () => {
+      const res = await chatService.getMessages(conversationId);
+      return { pages: [res] };
+    },
+    enabled: !!conversationId,
+  });
+
+  const messages = messagesData?.pages?.flatMap((page: any) => page.data) || [];
+  const mediaMessages = messages.filter(
+    (m: any) => (m.type === 'IMAGE' || m.type === 'VIDEO') && m.mediaUrl && !m.isDeleted
+  );
 
   // Leave Group Mutation
   const leaveGroupMutation = useMutation({
@@ -130,19 +146,31 @@ export const ChatInfoPanel: React.FC<ChatInfoPanelProps> = ({ conversationId }) 
         <div>
           <h5 className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-3 flex items-center gap-2">
             <ImageIcon className="w-4 h-4 text-violet-500" />
-            Shared Media
+            Shared Media ({mediaMessages.length})
           </h5>
-          <div className="grid grid-cols-3 gap-2">
-            {/* Mocked shared photos */}
-            {Array.from({ length: 3 }).map((_, i) => (
-              <div
-                key={i}
-                className="aspect-square rounded-lg bg-zinc-100 dark:bg-zinc-900 border border-zinc-200/10 flex items-center justify-center text-zinc-400"
-              >
-                <ImageIcon className="w-4 h-4 opacity-30" />
-              </div>
-            ))}
-          </div>
+          {mediaMessages.length > 0 ? (
+            <div className="grid grid-cols-3 gap-2 max-h-48 overflow-y-auto pr-1">
+              {mediaMessages.map((msg: any) => (
+                <a
+                  key={msg.id}
+                  href={msg.mediaUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="aspect-square rounded-lg overflow-hidden border border-zinc-200/10 hover:opacity-80 transition-opacity cursor-pointer block relative group"
+                >
+                  <img
+                    src={msg.mediaUrl}
+                    alt="Shared Media"
+                    className="w-full h-full object-cover"
+                  />
+                </a>
+              ))}
+            </div>
+          ) : (
+            <p className="text-xs text-zinc-400 dark:text-zinc-500 italic py-1 pl-1">
+              No shared media yet
+            </p>
+          )}
         </div>
       </div>
 
