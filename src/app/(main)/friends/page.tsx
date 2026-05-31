@@ -36,7 +36,7 @@ export default function FriendsPage() {
   const { data: suggestions = [], isLoading: isLoadingSuggestions } = useQuery<any[]>({
     queryKey: ['suggestionsList'],
     queryFn: async () => {
-      const res = await api.get('/users/search?query=b&limit=8');
+      const res = await api.get('/users/suggestions?limit=8');
       return res.data;
     },
     enabled: activeTab === 'suggestions',

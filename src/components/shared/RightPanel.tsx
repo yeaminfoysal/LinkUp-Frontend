@@ -46,7 +46,7 @@ export const RightPanel: React.FC = () => {
     queryKey: ['suggestions'],
     queryFn: async () => {
       // Fetch some default users for suggestions
-      const res = await api.get('/users/search?query=a&limit=4');
+      const res = await api.get('/users/suggestions?limit=4');
       return res.data;
     },
     enabled: !!shouldRender && isFeed,
