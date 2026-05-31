@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Modal from '../../../components/ui/Modal';
 import Button from '../../../components/ui/Button';
 import Avatar from '../../../components/shared/Avatar';
@@ -9,22 +9,32 @@ import { useFeed } from '../hooks/useFeed';
 import { usePost } from '../../posts/hooks/usePost';
 import { Image as ImageIcon, Globe, Users, X, Loader2 } from 'lucide-react';
 import toast from '../../../components/ui/Toast';
+import { Post } from '../../../types/post.types';
 
-interface CreatePostModalProps {
+interface EditPostModalProps {
+  post: Post;
   isOpen: boolean;
   onClose: () => void;
 }
 
-export const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClose }) => {
+export const EditPostModal: React.FC<EditPostModalProps> = ({ post, isOpen, onClose }) => {
   const { user } = useAuthStore();
-  const { createPost } = useFeed();
+  const { updatePost, isUpdatingPost } = useFeed();
   const { uploadFile, isUploading, uploadProgress } = usePost();
   
-  const [content, setContent] = useState('');
-  const [visibility, setVisibility] = useState('PUBLIC');
-  const [mediaUrls, setMediaUrls] = useState<string[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [content, setContent] = useState(post.content || '');
+  const [visibility, setVisibility] = useState<any>(post.visibility || 'PUBLIC');
+  const [mediaUrls, setMediaUrls] = useState<string[]>(post.mediaUrls || []);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Sync state if post changes
+  useEffect(() => {
+    if (isOpen) {
+      setContent(post.content || '');
+      setVisibility(post.visibility || 'PUBLIC');
+      setMediaUrls(post.mediaUrls || []);
+    }
+  }, [post, isOpen]);
 
   const handleImageUploadClick = () => {
     fileInputRef.current?.click();
@@ -56,20 +66,17 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClos
     }
 
     try {
-      setIsSubmitting(true);
-      await createPost({
-        content: content.trim(),
-        mediaUrls,
-        visibility,
+      await updatePost({
+        postId: post.id,
+        data: {
+          content: content.trim(),
+          mediaUrls,
+          visibility,
+        },
       });
-      setContent('');
-      setMediaUrls([]);
-      toast.success('Post created successfully!');
       onClose();
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || 'Failed to create post');
-    } finally {
-      setIsSubmitting(false);
+    } catch (err) {
+      // toast.error is already handled in useFeed hook
     }
   };
 
@@ -82,7 +89,7 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClos
   const VisibilityIcon = activeOption.icon;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Create Post" size="md">
+    <Modal isOpen={isOpen} onClose={onClose} title="Edit Post" size="md">
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* User Mini Header */}
         <div className="flex items-center gap-3">
@@ -179,14 +186,14 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClos
         {/* Submit */}
         <Button
           type="submit"
-          isLoading={isSubmitting}
+          isLoading={isUpdatingPost}
           className="w-full py-3"
           disabled={!content.trim() && mediaUrls.length === 0}
         >
-          Post
+          Save Changes
         </Button>
       </form>
     </Modal>
   );
 };
-export default CreatePostModal;
+export default EditPostModal;

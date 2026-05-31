@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Globe, Users, Lock, MoreHorizontal, Trash2 } from 'lucide-react';
+import { Globe, Users, Lock, MoreHorizontal, Trash2, Edit } from 'lucide-react';
 import Link from 'next/link';
 import Avatar from '../../../components/shared/Avatar';
 import PostActions from './PostActions';
@@ -15,6 +15,7 @@ import feedService from '../services/feed.service';
 import Dropdown, { DropdownItem } from '../../../components/ui/Dropdown';
 import toast from '../../../components/ui/Toast';
 import LikesModal from './LikesModal';
+import EditPostModal from './EditPostModal';
 
 interface PostCardProps {
   post: Post;
@@ -27,6 +28,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
   
   const [showComments, setShowComments] = useState(false);
   const [showLikes, setShowLikes] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [activeMediaUrl, setActiveMediaUrl] = useState<string | null>(null);
 
   const isOwner = post.userId === currentUserId;
@@ -153,6 +155,13 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
             align="right"
           >
             <DropdownItem
+              onClick={() => setIsEditing(true)}
+              className="text-zinc-750 dark:text-zinc-200 hover:bg-zinc-50/50"
+            >
+              <Edit className="w-4 h-4 text-zinc-500" />
+              Edit Post
+            </DropdownItem>
+            <DropdownItem
               onClick={() => deletePostMutation.mutate(post.id)}
               className="text-red-500 hover:text-red-600 hover:bg-red-50/50"
             >
@@ -207,6 +216,13 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
         isOpen={!!activeMediaUrl}
         onClose={() => setActiveMediaUrl(null)}
         mediaUrl={activeMediaUrl}
+      />
+
+      {/* Edit Post Modal */}
+      <EditPostModal
+        post={post}
+        isOpen={isEditing}
+        onClose={() => setIsEditing(false)}
       />
     </div>
   );

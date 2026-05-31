@@ -37,5 +37,10 @@ export const feedService = {
     const res = await api.delete(`/posts/${postId}`);
     return res.data;
   },
+
+  updatePost: async (postId: string, data: { content?: string; mediaUrls?: string[]; visibility?: string }) => {
+    const res = await api.patch(`/posts/${postId}`, data);
+    return res.data;
+  },
 };
 export default feedService;
