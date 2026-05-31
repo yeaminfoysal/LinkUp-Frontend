@@ -44,7 +44,7 @@ export const usePost = (postId?: string) => {
   });
 
   return {
-    comments: commentsQuery.data || [],
+    comments: commentsQuery.data?.items || (Array.isArray(commentsQuery.data) ? commentsQuery.data : []),
     isLoadingComments: commentsQuery.isLoading,
     
     createComment: createCommentMutation.mutateAsync,

@@ -31,6 +31,8 @@ export const useProfile = (username: string) => {
       setUser(updatedUser); // Update local Zustand Auth state
       queryClient.invalidateQueries({ queryKey: ['profile', username] });
       queryClient.invalidateQueries({ queryKey: ['profile', updatedUser.username] });
+      queryClient.invalidateQueries({ queryKey: ['userPosts', updatedUser.id] });
+      queryClient.invalidateQueries({ queryKey: ['feed'] });
     },
     onError: (err: any) => {
       toast.error(err.response?.data?.message || 'Failed to update profile');

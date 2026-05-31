@@ -14,6 +14,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import feedService from '../services/feed.service';
 import Dropdown, { DropdownItem } from '../../../components/ui/Dropdown';
 import toast from '../../../components/ui/Toast';
+import LikesModal from './LikesModal';
 
 interface PostCardProps {
   post: Post;
@@ -25,6 +26,7 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
   const queryClient = useQueryClient();
   
   const [showComments, setShowComments] = useState(false);
+  const [showLikes, setShowLikes] = useState(false);
   const [activeMediaUrl, setActiveMediaUrl] = useState<string | null>(null);
 
   const isOwner = post.userId === currentUserId;
@@ -185,12 +187,20 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
         onLikeToggle={handleLikeToggle}
         onCommentToggle={() => setShowComments(!showComments)}
         onSaveToggle={handleSaveToggle}
+        onLikesView={() => setShowLikes(true)}
       />
 
       {/* Comments section toggleable drawer */}
       {showComments && (
         <CommentSection postId={post.id} />
       )}
+
+      {/* Likes list modal */}
+      <LikesModal
+        isOpen={showLikes}
+        onClose={() => setShowLikes(false)}
+        postId={post.id}
+      />
 
       {/* Dynamic Image Overlay Modal */}
       <MediaViewer

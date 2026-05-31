@@ -11,6 +11,7 @@ interface PostActionsProps {
   onLikeToggle: () => void;
   onCommentToggle: () => void;
   onSaveToggle: () => void;
+  onLikesView?: () => void;
 }
 
 export const PostActions: React.FC<PostActionsProps> = ({
@@ -22,12 +23,16 @@ export const PostActions: React.FC<PostActionsProps> = ({
   onLikeToggle,
   onCommentToggle,
   onSaveToggle,
+  onLikesView,
 }) => {
   return (
     <div className="flex flex-col gap-2.5">
       {/* Counters Info */}
       <div className="flex justify-between items-center text-xs text-zinc-500 dark:text-zinc-400 px-1 py-0.5">
-        <div className="flex items-center gap-1.5">
+        <div
+          className="flex items-center gap-1.5 hover:underline cursor-pointer select-none"
+          onClick={onLikesView}
+        >
           <span className="flex items-center justify-center w-4 h-4 rounded-full bg-red-500/10 text-red-500">
             <Heart className="w-2.5 h-2.5 fill-red-500" />
           </span>
