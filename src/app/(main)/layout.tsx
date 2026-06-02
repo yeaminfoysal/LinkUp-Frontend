@@ -16,9 +16,10 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   const { isAuthenticated } = useAuthStore();
   const router = useRouter();
   const pathname = usePathname();
+  const isChatDetailPage = pathname?.startsWith('/messages/') && pathname !== '/messages';
   const { unreadMessagesCount, unreadNotificationsCount } = useUnreadCount();
   const { user } = useAuthStore();
-  const { toggleSidebar } = useUIStore();
+  const { isSidebarOpen, toggleSidebar, setSidebarOpen } = useUIStore();
   const isHydrated = useAuthHydration();
   const { pendingRequests } = useFriends();
 
@@ -45,8 +46,21 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-zinc-50 dark:bg-zinc-950 font-sans">
-      {/* Sidebar - Hidden on mobile, visible on desktop */}
-      <div className="hidden md:block">
+      {/* Backdrop for Mobile Sidebar */}
+      {isSidebarOpen && (
+        <div
+          onClick={() => setSidebarOpen(false)}
+          className="fixed inset-0 bg-black/45 dark:bg-black/60 backdrop-blur-sm z-40 md:hidden transition-all duration-300"
+        />
+      )}
+
+      {/* Sidebar - Desktop and Mobile (Drawer) */}
+      <div className={`
+        fixed md:static inset-y-0 left-0 z-50
+        transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0
+        transition-transform duration-300 ease-in-out
+        flex-shrink-0
+      `}>
         <Sidebar />
       </div>
 
@@ -68,8 +82,10 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         </header>
 
         {/* Dynamic Page Component */}
-        <main className="flex-1 min-h-0 overflow-y-auto bg-zinc-50 dark:bg-zinc-950 p-4 md:p-6 pb-20 md:pb-6">
-          <div className="max-w-4xl mx-auto w-full h-full">
+        <main className={`flex-1 min-h-0 overflow-y-auto bg-zinc-50 dark:bg-zinc-950 ${
+          isChatDetailPage ? 'p-0 md:p-6' : 'p-4 md:p-6 pb-20 md:pb-6'
+        }`}>
+          <div className={isChatDetailPage ? 'w-full h-full' : 'max-w-4xl mx-auto w-full h-full'}>
             {children}
           </div>
         </main>
@@ -78,32 +94,34 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       {/* Right Context Panel - Hidden on Tablet/Mobile */}
       <RightPanel />
 
-      {/* Mobile Bottom Navbar (Visible only on Mobile) */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-white/90 dark:bg-zinc-950/90 border-t border-zinc-150 dark:border-zinc-800 backdrop-blur-md flex items-center justify-around px-2 z-40">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = pathname === item.href || pathname?.startsWith(item.href + '/');
-          return (
-            <Link
-              key={item.label}
-              href={item.href}
-              className={`flex flex-col items-center justify-center w-12 h-12 rounded-xl transition-all relative ${
-                isActive
-                  ? 'text-violet-500 dark:text-violet-400 font-bold scale-105'
-                  : 'text-zinc-400 hover:text-zinc-500'
-              }`}
-            >
-              <Icon className="w-5.5 h-5.5" />
-              <span className="text-[9px] mt-0.5 tracking-wide font-medium">{item.label}</span>
-              {item.badge !== undefined && item.badge > 0 && (
-                <span className="absolute -top-1 -right-1.5 bg-red-500 text-white text-[9px] font-bold min-w-4 h-4 px-1 rounded-full flex items-center justify-center shadow-md animate-pulse">
-                  {item.badge}
-                </span>
-              )}
-            </Link>
-          );
-        })}
-      </nav>
+      {/* Mobile Bottom Navbar (Visible only on Mobile, hidden in chat details) */}
+      {!isChatDetailPage && (
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-white/90 dark:bg-zinc-950/90 border-t border-zinc-150 dark:border-zinc-800 backdrop-blur-md flex items-center justify-around px-2 z-40">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = pathname === item.href || pathname?.startsWith(item.href + '/');
+            return (
+              <Link
+                key={item.label}
+                href={item.href}
+                className={`flex flex-col items-center justify-center w-12 h-12 rounded-xl transition-all relative ${
+                  isActive
+                    ? 'text-violet-500 dark:text-violet-400 font-bold scale-105'
+                    : 'text-zinc-400 hover:text-zinc-500'
+                }`}
+              >
+                <Icon className="w-5.5 h-5.5" />
+                <span className="text-[9px] mt-0.5 tracking-wide font-medium">{item.label}</span>
+                {item.badge !== undefined && item.badge > 0 && (
+                  <span className="absolute -top-1 -right-1.5 bg-red-500 text-white text-[9px] font-bold min-w-4 h-4 px-1 rounded-full flex items-center justify-center shadow-md animate-pulse">
+                    {item.badge}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
+        </nav>
+      )}
     </div>
   );
 }

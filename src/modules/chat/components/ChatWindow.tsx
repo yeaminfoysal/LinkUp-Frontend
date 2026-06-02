@@ -129,7 +129,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ conversationId }) => {
   };
 
   return (
-    <div className="flex-1 h-full flex flex-col bg-white dark:bg-zinc-950/40 border border-zinc-150 dark:border-zinc-800/40 rounded-2xl overflow-hidden shadow-sm">
+    <div className="flex-1 h-full flex flex-col bg-white dark:bg-zinc-950/40 border-y md:border border-x-0 border-zinc-150 dark:border-zinc-800/40 rounded-none md:rounded-2xl overflow-hidden shadow-sm">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-150 dark:border-zinc-800 bg-white/50 dark:bg-zinc-950/50 backdrop-blur-md flex-shrink-0">
         <div className="flex items-center gap-3 min-w-0">

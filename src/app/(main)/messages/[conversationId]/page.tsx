@@ -26,7 +26,7 @@ export default function ConversationPage({ params }: ConversationPageProps) {
   }, [conversationId, setActiveConversationId]);
 
   return (
-    <div className="flex h-[calc(100vh-100px)] md:h-[calc(100vh-48px)] overflow-hidden border border-zinc-150 dark:border-zinc-850 rounded-2xl bg-white dark:bg-zinc-950">
+    <div className="flex h-[calc(100vh-48px)] md:h-[calc(100vh-48px)] overflow-hidden border-x-0 md:border border-y border-zinc-150 dark:border-zinc-850 rounded-none md:rounded-2xl bg-white dark:bg-zinc-950">
       {/* Chats directory list panel (hidden on mobile when chat is open) */}
       <div className="hidden md:block">
         <ConversationList />

@@ -9,6 +9,7 @@ import { Message } from '../../../types/message.types';
 export const useMessages = (conversationId: string | null) => {
   const queryClient = useQueryClient();
   const socket = useSocketStore((state) => state.socket);
+  const currentUser = useAuthStore((state) => state.user);
 
   // Upward infinite query for loading message history
   const messagesQuery = useInfiniteQuery({
@@ -51,6 +52,25 @@ export const useMessages = (conversationId: string | null) => {
       socket.emit(SOCKET_EVENTS.LEAVE_CONVERSATION, { conversationId });
     };
   }, [socket, conversationId, queryClient]);
+
+  const messages = messagesQuery.data?.pages.flatMap((page) => page.data) || [];
+
+  // Mark messages as read when loaded or when new messages arrive
+  useEffect(() => {
+    if (!socket || !conversationId || !messages.length || !currentUser) return;
+
+    const latestMessage = messages[0];
+    if (
+      latestMessage &&
+      latestMessage.senderId !== currentUser.id &&
+      !latestMessage.reads?.some((r: { userId: string; }) => r.userId === currentUser.id)
+    ) {
+      socket.emit(SOCKET_EVENTS.MARK_AS_READ, {
+        conversationId,
+        messageId: latestMessage.id,
+      });
+    }
+  }, [socket, conversationId, messages, currentUser]);
 
   // Send Message Method
   const sendMessage = (content: string, type: 'TEXT' | 'IMAGE' | 'VIDEO' | 'FILE' = 'TEXT', extra: any = {}) => {
@@ -136,7 +156,7 @@ export const useMessages = (conversationId: string | null) => {
 
   return {
     // Queries
-    messages: messagesQuery.data?.pages.flatMap((page) => page.data) || [],
+    messages,
     isLoading: messagesQuery.isLoading,
     isError: messagesQuery.isError,
     fetchNextPage: messagesQuery.fetchNextPage,

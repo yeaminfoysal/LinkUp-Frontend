@@ -108,6 +108,32 @@ export const registerChatHandlers = (socket: Socket) => {
         };
       });
     }
+
+    // Update conversations list cache with the read receipt so the highlight disappears instantly
+    queryClient.setQueryData(['conversations'], (oldConvs: any) => {
+      if (!oldConvs || !Array.isArray(oldConvs)) return oldConvs;
+      return oldConvs.map((conv: any) => {
+        const lastMsg = conv.messages?.[0];
+        if (lastMsg && lastMsg.id === messageId) {
+          const currentReads = lastMsg.reads || [];
+          const alreadyRead = currentReads.some((r: any) => r.userId === readBy);
+          const updatedReads = alreadyRead ? currentReads : [...currentReads, { userId: readBy, readAt }];
+          return {
+            ...conv,
+            messages: [
+              {
+                ...lastMsg,
+                reads: updatedReads,
+              },
+              ...conv.messages.slice(1),
+            ],
+          };
+        }
+        return conv;
+      });
+    });
+
+    queryClient.invalidateQueries({ queryKey: ['unreadCounts'] });
   });
 
   // Message Reaction Added
