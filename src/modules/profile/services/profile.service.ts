@@ -12,17 +12,8 @@ export const profileService = {
   },
 
   resolveUsernameToProfile: async (username: string) => {
-    // Search exact matching username
-    const res = await api.get(`/users/search?query=${username}`);
-    const matches = res.data || [];
-    const exactMatch = matches.find(
-      (u: any) => u.username.toLowerCase() === username.toLowerCase()
-    );
-    if (!exactMatch) {
-      throw new Error('User not found');
-    }
-    // Fetch complete details by ID
-    return profileService.getProfileById(exactMatch.id);
+    const res = await api.get(`/users/profile/${username}`);
+    return res.data;
   },
 
   updateOwnProfile: async (data: { name?: string; bio?: string; avatar?: string }) => {

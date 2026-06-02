@@ -21,6 +21,11 @@ export const useFriends = () => {
     queryFn: friendsService.getSentRequests,
   });
 
+  const blockedQuery = useQuery({
+    queryKey: ['blockedUsers'],
+    queryFn: friendsService.getBlockedUsers,
+  });
+
   // Mutations
   const sendRequestMutation = useMutation({
     mutationFn: friendsService.sendRequest,
@@ -85,6 +90,10 @@ export const useFriends = () => {
       queryClient.invalidateQueries({ queryKey: ['friends'] });
       queryClient.invalidateQueries({ queryKey: ['pendingRequests'] });
       queryClient.invalidateQueries({ queryKey: ['sentRequests'] });
+      queryClient.invalidateQueries({ queryKey: ['blockedUsers'] });
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
+      queryClient.invalidateQueries({ queryKey: ['conversations'] });
+      queryClient.invalidateQueries({ queryKey: ['conversation'] });
     },
     onError: (err: any) => {
       toast.error(err.response?.data?.message || 'Failed to block user');
@@ -96,6 +105,10 @@ export const useFriends = () => {
     onSuccess: () => {
       toast.success('User unblocked');
       queryClient.invalidateQueries({ queryKey: ['friends'] });
+      queryClient.invalidateQueries({ queryKey: ['blockedUsers'] });
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
+      queryClient.invalidateQueries({ queryKey: ['conversations'] });
+      queryClient.invalidateQueries({ queryKey: ['conversation'] });
     },
     onError: (err: any) => {
       toast.error(err.response?.data?.message || 'Failed to unblock user');
@@ -107,11 +120,13 @@ export const useFriends = () => {
     friends: friendsQuery.data || [],
     pendingRequests: pendingQuery.data || [],
     sentRequests: sentQuery.data || [],
+    blockedUsers: blockedQuery.data || [],
     
     // Loading States
     isLoadingFriends: friendsQuery.isLoading,
     isLoadingPending: pendingQuery.isLoading,
     isLoadingSent: sentQuery.isLoading,
+    isLoadingBlocked: blockedQuery.isLoading,
 
     // Mutation triggers
     sendRequest: sendRequestMutation.mutate,

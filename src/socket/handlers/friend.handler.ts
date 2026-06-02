@@ -31,6 +31,24 @@ export const registerFriendHandlers = (socket: Socket) => {
   socket.on(SOCKET_EVENTS.FRIEND_REMOVED, () => {
     queryClient.invalidateQueries({ queryKey: ['friends'] });
   });
+
+  // User blocked
+  socket.on(SOCKET_EVENTS.USER_BLOCKED, () => {
+    queryClient.invalidateQueries({ queryKey: ['friends'] });
+    queryClient.invalidateQueries({ queryKey: ['blockedUsers'] });
+    queryClient.invalidateQueries({ queryKey: ['profile'] });
+    queryClient.invalidateQueries({ queryKey: ['conversations'] });
+    queryClient.invalidateQueries({ queryKey: ['conversation'] });
+  });
+
+  // User unblocked
+  socket.on(SOCKET_EVENTS.USER_UNBLOCKED, () => {
+    queryClient.invalidateQueries({ queryKey: ['friends'] });
+    queryClient.invalidateQueries({ queryKey: ['blockedUsers'] });
+    queryClient.invalidateQueries({ queryKey: ['profile'] });
+    queryClient.invalidateQueries({ queryKey: ['conversations'] });
+    queryClient.invalidateQueries({ queryKey: ['conversation'] });
+  });
 };
 
 export default registerFriendHandlers;

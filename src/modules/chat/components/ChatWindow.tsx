@@ -15,8 +15,9 @@ import { useQuery } from '@tanstack/react-query';
 import api from '../../../services/api';
 import { Conversation } from '../../../types/conversation.types';
 import { Message } from '../../../types/message.types';
-import { Info, ArrowLeft, Loader2, Phone, MessageSquare } from 'lucide-react';
+import { Info, ArrowLeft, Loader2, Phone, MessageSquare, Ban } from 'lucide-react';
 import Link from 'next/link';
+import useFriends from '../../friends/hooks/useFriends';
 
 interface ChatWindowProps {
   conversationId: string;
@@ -26,6 +27,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ conversationId }) => {
   const currentUserId = useAuthStore((state) => state.user?.id);
   const { typingUsers, onlineUserIds } = useChatStore();
   const { toggleRightPanel } = useUIStore();
+  const { unblockUser } = useFriends();
 
   const [replyTarget, setReplyTarget] = useState<Message | null>(null);
   const messageEndRef = useRef<HTMLDivElement>(null);
@@ -209,14 +211,42 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ conversationId }) => {
 
       {/* Footer input area */}
       <div className="p-3 border-t border-zinc-150 dark:border-zinc-800 bg-white/50 dark:bg-zinc-950/50 backdrop-blur-md flex-shrink-0 space-y-2">
-        {/* Active Typers indicator */}
-        <TypingIndicator names={activeTypers} />
+        {(conversation as any)?.isBlocked ? (
+          <div className="flex items-center justify-between p-3 rounded-xl bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/30 text-xs font-semibold">
+            <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
+              <Ban className="w-4 h-4 flex-shrink-0" />
+              <span>
+                {(conversation as any).blockedById === currentUserId
+                  ? 'You have blocked this user. Unblock them to send messages.'
+                  : 'This user is unavailable.'}
+              </span>
+            </div>
+            {(conversation as any).blockedById === currentUserId && (
+              <button
+                onClick={() => {
+                  const partnerMember = conversation?.members.find((m) => m.userId !== currentUserId);
+                  if (partnerMember) {
+                    unblockUser(partnerMember.userId);
+                  }
+                }}
+                className="px-3 py-1.5 rounded-lg text-xs bg-red-600 hover:bg-red-700 text-white font-medium transition-colors cursor-pointer"
+              >
+                Unblock
+              </button>
+            )}
+          </div>
+        ) : (
+          <>
+            {/* Active Typers indicator */}
+            <TypingIndicator names={activeTypers} />
 
-        {/* Reply targets overlay */}
-        <ReplyPreview message={replyTarget} onClear={() => setReplyTarget(null)} />
+            {/* Reply targets overlay */}
+            <ReplyPreview message={replyTarget} onClear={() => setReplyTarget(null)} />
 
-        {/* Text Input Panel */}
-        <MessageInput onSend={handleSendMessage} onKeyPress={handleKeyPress} />
+            {/* Text Input Panel */}
+            <MessageInput onSend={handleSendMessage} onKeyPress={handleKeyPress} />
+          </>
+        )}
       </div>
     </div>
   );

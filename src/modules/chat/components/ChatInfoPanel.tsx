@@ -12,6 +12,7 @@ import { Conversation } from '../../../types/conversation.types';
 import { Users, Image as ImageIcon, FileText, LogOut, Ban, Loader2 } from 'lucide-react';
 import toast from '../../../components/ui/Toast';
 import { useRouter } from 'next/navigation';
+import useFriends from '../../friends/hooks/useFriends';
 
 interface ChatInfoPanelProps {
   conversationId: string;
@@ -20,6 +21,7 @@ interface ChatInfoPanelProps {
 export const ChatInfoPanel: React.FC<ChatInfoPanelProps> = ({ conversationId }) => {
   const router = useRouter();
   const currentUserId = useAuthStore((state) => state.user?.id);
+  const { blockedUsers, blockUser, unblockUser } = useFriends();
 
   // Fetch Conversation detail
   const { data: conversation, isLoading } = useQuery<Conversation>({
@@ -61,20 +63,7 @@ export const ChatInfoPanel: React.FC<ChatInfoPanelProps> = ({ conversationId }) 
     },
   });
 
-  // Block User Mutation
-  const blockUserMutation = useMutation({
-    mutationFn: async (targetUserId: string) => {
-      return api.post(`/friends/block`, { userId: targetUserId });
-    },
-    onSuccess: () => {
-      toast.success('User blocked successfully');
-      queryClient.invalidateQueries({ queryKey: ['friends'] });
-      router.push('/messages');
-    },
-    onError: (err: any) => {
-      toast.error(err.response?.data?.message || 'Failed to block user');
-    },
-  });
+
 
   if (isLoading) {
     return (
@@ -188,15 +177,31 @@ export const ChatInfoPanel: React.FC<ChatInfoPanelProps> = ({ conversationId }) 
           </Button>
         ) : (
           partner && (
-            <Button
-              onClick={() => blockUserMutation.mutate(partner.userId)}
-              isLoading={blockUserMutation.isPending}
-              variant="danger"
-              className="w-full flex items-center justify-center gap-2"
-            >
-              <Ban className="w-4 h-4" />
-              Block User
-            </Button>
+            (() => {
+              const isPartnerBlocked = blockedUsers.some((u: any) => u.id === partner.userId);
+              return (
+                <Button
+                  onClick={() => {
+                    if (isPartnerBlocked) {
+                      unblockUser(partner.userId);
+                    } else {
+                      if (confirm('Are you sure you want to block this user?')) {
+                        blockUser(partner.userId);
+                      }
+                    }
+                  }}
+                  variant={isPartnerBlocked ? 'outline' : 'danger'}
+                  className={`w-full flex items-center justify-center gap-2 ${
+                    isPartnerBlocked
+                      ? 'border-red-500/20 hover:border-red-500 hover:bg-red-500/5 hover:text-red-600 dark:hover:text-red-400 text-red-500'
+                      : ''
+                  }`}
+                >
+                  <Ban className="w-4 h-4" />
+                  {isPartnerBlocked ? 'Unblock User' : 'Block User'}
+                </Button>
+              );
+            })()
           )
         )}
       </div>

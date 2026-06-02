@@ -11,7 +11,7 @@ import UserCard from '../../../components/shared/UserCard';
 import Button from '../../../components/ui/Button';
 import { useQuery } from '@tanstack/react-query';
 import api from '../../../services/api';
-import { Users, UserCheck, Plus, UserPlus } from 'lucide-react';
+import { Users, UserCheck, Plus, UserPlus, Ban } from 'lucide-react';
 import { Friendship, FriendRequest } from '../../../types/user.types';
 
 export default function FriendsPage() {
@@ -21,14 +21,17 @@ export default function FriendsPage() {
     friends,
     pendingRequests,
     sentRequests,
+    blockedUsers,
     isLoadingFriends,
     isLoadingPending,
     isLoadingSent,
+    isLoadingBlocked,
     acceptRequest,
     rejectRequest,
     cancelRequest,
     removeFriend,
     blockUser,
+    unblockUser,
     sendRequest,
   } = useFriends();
 
@@ -46,7 +49,8 @@ export default function FriendsPage() {
     (activeTab === 'all' && isLoadingFriends) ||
     (activeTab === 'pending' && isLoadingPending) ||
     (activeTab === 'sent' && isLoadingSent) ||
-    (activeTab === 'suggestions' && isLoadingSuggestions);
+    (activeTab === 'suggestions' && isLoadingSuggestions) ||
+    (activeTab === 'blocked' && isLoadingBlocked);
 
   return (
     <div className="space-y-6">
@@ -180,6 +184,36 @@ export default function FriendsPage() {
                 icon={<UserPlus className="w-12 h-12 text-zinc-300 dark:text-zinc-700" />}
                 title="No suggestions found"
                 description="We couldn't locate any suggestions at this moment. Try looking up friends directly."
+              />
+            )
+          )}
+
+          {/* BLOCKED USERS */}
+          {activeTab === 'blocked' && (
+            blockedUsers.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {blockedUsers.map((blockedUser: any) => (
+                  <UserCard
+                    key={blockedUser.id}
+                    user={blockedUser}
+                    action={
+                      <Button
+                        onClick={() => unblockUser(blockedUser.id)}
+                        variant="outline"
+                        size="sm"
+                        className="flex items-center gap-1.5 h-8.5 rounded-lg py-1 px-3 text-xs border-red-500/20 hover:border-red-500 hover:bg-red-500/5 hover:text-red-650 dark:hover:text-red-400 text-red-500 cursor-pointer"
+                      >
+                        Unblock
+                      </Button>
+                    }
+                  />
+                ))}
+              </div>
+            ) : (
+              <EmptyState
+                icon={<Ban className="w-12 h-12 text-zinc-300 dark:text-zinc-700" />}
+                title="No blocked users"
+                description="Any users you block will be displayed here, where you can unblock them at any time."
               />
             )
           )}

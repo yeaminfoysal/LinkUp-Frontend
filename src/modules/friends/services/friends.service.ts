@@ -16,6 +16,11 @@ export const friendsService = {
     return res.data; // returns FriendRequest[]
   },
 
+  getBlockedUsers: async () => {
+    const res = await api.get('/friends/blocked');
+    return res.data; // returns User[]
+  },
+
   sendRequest: async (receiverId: string) => {
     const res = await api.post('/friends/request', { receiverId });
     return res.data;

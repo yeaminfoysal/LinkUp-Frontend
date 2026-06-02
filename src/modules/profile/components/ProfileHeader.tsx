@@ -18,7 +18,8 @@ import {
   Edit2,
   Calendar,
   Grid,
-  Heart
+  Heart,
+  Ban
 } from 'lucide-react';
 import toast from '../../../components/ui/Toast';
 import { Friendship, FriendRequest } from '../../../types/user.types';
@@ -46,6 +47,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ profile, onUpdate 
     cancelRequest,
     removeFriend,
     blockUser,
+    unblockUser,
   } = useFriends();
 
   // Create chat mutation
@@ -106,6 +108,19 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ profile, onUpdate 
       );
     }
 
+    if (profile.isBlockedByMe) {
+      return (
+        <Button
+          onClick={() => unblockUser(profile.id)}
+          variant="primary"
+          className="flex items-center gap-1.5 h-10 px-4 rounded-xl font-semibold bg-red-600 hover:bg-red-700 text-white border-transparent"
+        >
+          <Ban className="w-4 h-4" />
+          Unblock User
+        </Button>
+      );
+    }
+
     return (
       <div className="flex gap-2">
         {/* Friend Request Toggles */}
@@ -161,6 +176,20 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ profile, onUpdate 
         >
           <MessageSquare className="w-4 h-4 text-zinc-400" />
         </Button>
+
+        {/* Block user option */}
+        <Button
+          onClick={() => {
+            if (confirm('Are you sure you want to block this user?')) {
+              blockUser(profile.id);
+            }
+          }}
+          variant="outline"
+          className="flex items-center justify-center w-10 h-10 p-0 rounded-xl border-zinc-200/60 dark:border-zinc-800 text-zinc-400 hover:text-red-500 hover:border-red-500 dark:hover:text-red-400 dark:hover:border-red-900/50"
+          title="Block user"
+        >
+          <Ban className="w-4 h-4" />
+        </Button>
       </div>
     );
   };
@@ -203,6 +232,16 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ profile, onUpdate 
         <div className="px-6 pb-6">
           <div className="p-4 rounded-xl bg-zinc-50 dark:bg-zinc-900/30 border border-zinc-100 dark:border-zinc-800/40 text-xs text-zinc-700 dark:text-zinc-300 leading-relaxed italic max-w-2xl whitespace-pre-wrap">
             {profile.bio}
+          </div>
+        </div>
+      )}
+
+      {/* Blocked Alert Banner */}
+      {profile.isBlockedByMe && (
+        <div className="px-6 pb-6">
+          <div className="flex items-center gap-2 p-4 rounded-xl bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/30 text-xs text-red-600 dark:text-red-400 font-semibold">
+            <Ban className="w-4.5 h-4.5 flex-shrink-0" />
+            <span>You have blocked this user. Unblock them to connect or start conversations.</span>
           </div>
         </div>
       )}
