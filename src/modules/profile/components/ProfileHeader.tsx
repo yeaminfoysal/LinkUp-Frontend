@@ -19,7 +19,13 @@ import {
   Calendar,
   Grid,
   Heart,
-  Ban
+  Ban,
+  MapPin,
+  Briefcase,
+  Building2,
+  BookOpen,
+  Code,
+  GraduationCap
 } from 'lucide-react';
 import toast from '../../../components/ui/Toast';
 import { Friendship, FriendRequest } from '../../../types/user.types';
@@ -27,7 +33,7 @@ import { useRouter } from 'next/navigation';
 
 interface ProfileHeaderProps {
   profile: any;
-  onUpdate: (data: { name: string; bio: string; avatar: string }) => Promise<any>;
+  onUpdate: (data: Partial<any>) => Promise<any>;
 }
 
 export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ profile, onUpdate }) => {
@@ -227,14 +233,56 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ profile, onUpdate 
         <div className="flex items-center justify-center md:justify-end">{renderActionButton()}</div>
       </div>
 
-      {/* 3. Bio text */}
-      {profile.bio && (
-        <div className="px-6 pb-6">
+      {/* 3. Bio & About Info */}
+      <div className="px-6 pb-6 space-y-4">
+        {profile.bio && (
           <div className="p-4 rounded-xl bg-zinc-50 dark:bg-zinc-900/30 border border-zinc-100 dark:border-zinc-800/40 text-xs text-zinc-700 dark:text-zinc-300 leading-relaxed italic max-w-2xl whitespace-pre-wrap">
             {profile.bio}
           </div>
-        </div>
-      )}
+        )}
+
+        {/* AI Discovery Details (Location, Profession, etc) */}
+        {(profile.location || profile.profession || profile.work_place || profile.university || profile.department || profile.skills || profile.interests) && (
+          <div className="flex flex-wrap gap-2 pt-2 max-w-3xl">
+            {profile.location && (
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-900 text-xs text-zinc-600 dark:text-zinc-400 font-medium border border-zinc-200 dark:border-zinc-800">
+                <MapPin className="w-3.5 h-3.5 text-rose-500" />
+                {profile.location}
+              </div>
+            )}
+            {profile.profession && (
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-900 text-xs text-zinc-600 dark:text-zinc-400 font-medium border border-zinc-200 dark:border-zinc-800">
+                <Briefcase className="w-3.5 h-3.5 text-blue-500" />
+                {profile.profession}
+              </div>
+            )}
+            {profile.work_place && (
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-900 text-xs text-zinc-600 dark:text-zinc-400 font-medium border border-zinc-200 dark:border-zinc-800">
+                <Building2 className="w-3.5 h-3.5 text-indigo-500" />
+                {profile.work_place}
+              </div>
+            )}
+            {profile.university && (
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-900 text-xs text-zinc-600 dark:text-zinc-400 font-medium border border-zinc-200 dark:border-zinc-800">
+                <GraduationCap className="w-3.5 h-3.5 text-emerald-500" />
+                {profile.university} {profile.department ? `- ${profile.department}` : ''}
+              </div>
+            )}
+            {profile.skills && (
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-900 text-xs text-zinc-600 dark:text-zinc-400 font-medium border border-zinc-200 dark:border-zinc-800">
+                <Code className="w-3.5 h-3.5 text-amber-500" />
+                {profile.skills}
+              </div>
+            )}
+            {profile.interests && (
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-900 text-xs text-zinc-600 dark:text-zinc-400 font-medium border border-zinc-200 dark:border-zinc-800">
+                <BookOpen className="w-3.5 h-3.5 text-purple-500" />
+                {profile.interests}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
 
       {/* Blocked Alert Banner */}
       {profile.isBlockedByMe && (
