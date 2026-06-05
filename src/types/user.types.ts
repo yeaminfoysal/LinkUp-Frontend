@@ -5,6 +5,13 @@ export interface User {
   email: string;
   avatar: string | null;
   bio: string | null;
+  location?: string | null;
+  university?: string | null;
+  department?: string | null;
+  skills?: string | null;
+  interests?: string | null;
+  profession?: string | null;
+  work_place?: string | null;
   isOnline: boolean;
   lastSeen: string | null;
   createdAt: string;
