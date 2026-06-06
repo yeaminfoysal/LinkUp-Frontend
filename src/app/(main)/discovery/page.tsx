@@ -7,6 +7,7 @@ import { MatchCard } from '../../../components/modules/discovery/MatchCard';
 import { DiscoverySkeleton } from '../../../components/modules/discovery/DiscoverySkeleton';
 import { DiscoveryEmptyState } from '../../../components/modules/discovery/DiscoveryEmptyState';
 import { useAISearch } from '../../../hooks/useAIDiscovery';
+import { Sparkles, Clock } from 'lucide-react';
 
 export default function AIDiscoveryPage() {
   const [query, setQuery] = useState('');
@@ -24,7 +25,7 @@ export default function AIDiscoveryPage() {
     if (!error) return null;
     const axiosError = error as any;
     if (axiosError?.response?.status === 429) {
-      return "Whoa, slow down! Let the AI take a breath. Try again in a minute.";
+      return "Hourly AI search limit reached. Please try again later.";
     }
     return "Failed to search. Please try again.";
   };
@@ -34,7 +35,7 @@ export default function AIDiscoveryPage() {
   return (
     <div className="min-h-screen py-8 px-4 md:px-8 max-w-7xl mx-auto">
       {/* Header Section */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         className="text-center mb-12"
@@ -48,12 +49,12 @@ export default function AIDiscoveryPage() {
       </motion.div>
 
       {/* Search Bar Section */}
-      <div className="mb-12">
-        <AISearchBar 
-          value={query} 
-          onChange={setQuery} 
-          onSubmit={handleSearch} 
-          isLoading={isPending} 
+      <div className="mb-6 relative">
+        <AISearchBar
+          value={query}
+          onChange={setQuery}
+          onSubmit={handleSearch}
+          isLoading={isPending}
         />
       </div>
 
@@ -69,7 +70,7 @@ export default function AIDiscoveryPage() {
         {isPending ? (
           <DiscoverySkeleton />
         ) : hasSearched && results && results.length > 0 ? (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"

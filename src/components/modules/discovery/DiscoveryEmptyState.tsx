@@ -36,12 +36,12 @@ export const DiscoveryEmptyState: React.FC<DiscoveryEmptyStateProps> = ({ hasSea
       <div className="w-24 h-24 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mb-6">
         <SearchX className="w-12 h-12 text-zinc-400" />
       </div>
-      <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mb-3">No perfect matches found</h2>
+      <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mb-3">No High-Quality Matches Found</h2>
       <p className="text-zinc-500 max-w-md mb-6">
-        We couldn't find anyone matching <span className="font-semibold text-zinc-700 dark:text-zinc-300">"{query}"</span>.
+        We couldn't find anyone with an 80%+ match score for <span className="font-semibold text-zinc-700 dark:text-zinc-300">"{query}"</span>.
       </p>
       <p className="text-sm text-zinc-400">
-        Try broadening your search or using different keywords!
+        Try broadening your search or using more generic keywords!
       </p>
     </motion.div>
   );

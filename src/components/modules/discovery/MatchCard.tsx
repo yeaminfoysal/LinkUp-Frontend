@@ -54,15 +54,16 @@ export const MatchCard: React.FC<MatchCardProps> = ({ user }) => {
         </div>
         
         {/* Match Score Badge */}
-        <div className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs sm:text-sm font-semibold whitespace-nowrap ${getScoreColor(user.score || user.matchScore)}`}>
+        
+      </div>
+{/* 
+      <div className="mb-5 text-zinc-600 dark:text-zinc-400 text-sm line-clamp-2 min-h-[40px]">
+        {user.bio || "No bio available."}
+      </div> */}
+      <div className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs sm:text-sm font-semibold whitespace-nowrap ${getScoreColor(user.score || user.matchScore)}`}>
           <span className="animate-pulse">🔥</span>
           {Math.round(user.score || user.matchScore)}% Match
         </div>
-      </div>
-
-      <div className="mb-5 text-zinc-600 dark:text-zinc-400 text-sm line-clamp-2 min-h-[40px]">
-        {user.bio || "No bio available."}
-      </div>
 
       {/* AI Reason Box */}
       <div className="mt-auto pt-4">

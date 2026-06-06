@@ -11,7 +11,7 @@ import UserCard from '../../../components/shared/UserCard';
 import Button from '../../../components/ui/Button';
 import { useQuery } from '@tanstack/react-query';
 import api from '../../../services/api';
-import { Users, UserCheck, Plus, UserPlus, Ban } from 'lucide-react';
+import { Users, UserCheck, Plus, UserPlus, Ban, Check } from 'lucide-react';
 import { Friendship, FriendRequest } from '../../../types/user.types';
 
 export default function FriendsPage() {
@@ -161,23 +161,39 @@ export default function FriendsPage() {
           {activeTab === 'suggestions' && (
             suggestions.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {suggestions.map((userSuggestion) => (
-                  <UserCard
-                    key={userSuggestion.id}
-                    user={userSuggestion}
-                    action={
-                      <Button
-                        onClick={() => sendRequest(userSuggestion.id)}
-                        variant="primary"
-                        size="sm"
-                        className="flex items-center gap-1.5 h-8.5 rounded-lg py-1 px-3 text-xs"
-                      >
-                        <UserPlus className="w-3.5 h-3.5" />
-                        Add Friend
-                      </Button>
-                    }
-                  />
-                ))}
+                {suggestions.map((userSuggestion) => {
+                  const isRequestSent = sentRequests.some((req: FriendRequest) => req.receiver?.id === userSuggestion.id || req.receiverId === userSuggestion.id);
+                  
+                  return (
+                    <UserCard
+                      key={userSuggestion.id}
+                      user={userSuggestion}
+                      action={
+                        isRequestSent ? (
+                          <Button
+                            disabled
+                            variant="outline"
+                            size="sm"
+                            className="flex items-center gap-1.5 h-8.5 rounded-lg py-1 px-3 text-xs bg-zinc-100 dark:bg-zinc-800 text-zinc-500 border-transparent cursor-default"
+                          >
+                            <Check className="w-3.5 h-3.5" />
+                            Request Sent
+                          </Button>
+                        ) : (
+                          <Button
+                            onClick={() => sendRequest(userSuggestion.id)}
+                            variant="primary"
+                            size="sm"
+                            className="flex items-center gap-1.5 h-8.5 rounded-lg py-1 px-3 text-xs"
+                          >
+                            <UserPlus className="w-3.5 h-3.5" />
+                            Add Friend
+                          </Button>
+                        )
+                      }
+                    />
+                  );
+                })}
               </div>
             ) : (
               <EmptyState

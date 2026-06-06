@@ -17,3 +17,4 @@ export const searchUsersViaAI = async (query: string): Promise<SearchResult[]> =
   // The API interceptor already unwraps `response.data.data` to `response.data`
   return response.data;
 };
+
