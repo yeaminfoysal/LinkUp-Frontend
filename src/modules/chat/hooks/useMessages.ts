@@ -37,21 +37,55 @@ export const useMessages = (conversationId: string | null) => {
     // Join room
     socket.emit(SOCKET_EVENTS.JOIN_CONVERSATION, { conversationId });
 
-    // Mark last message as read upon opening conversation
+    // Mark messages as read upon opening conversation
     const pages = queryClient.getQueryData<any>(['messages', conversationId])?.pages;
-    const latestMessage = pages?.[0]?.data?.[0];
-    if (latestMessage) {
-      socket.emit(SOCKET_EVENTS.MARK_AS_READ, {
-        conversationId,
-        messageId: latestMessage.id,
-      });
+    const allMessages = pages?.flatMap((p: any) => p.data) || [];
+    const latestMessage = allMessages[0];
+    
+    if (latestMessage && currentUser) {
+      // Check if ANY message sent by others is unread
+      const hasUnread = allMessages.some((m: any) => 
+        m.senderId !== currentUser.id && !m.reads?.some((r: any) => r.userId === currentUser.id)
+      );
+
+      if (hasUnread) {
+        socket.emit(SOCKET_EVENTS.MARK_AS_READ, {
+          conversationId,
+          messageId: latestMessage.id, // Emitting latest message marks all previous as read in backend
+        });
+
+        // Optimistic cache update for unread counts
+        queryClient.setQueryData(['conversations'], (oldConvs: any) => {
+          if (!oldConvs || !Array.isArray(oldConvs)) return oldConvs;
+          return oldConvs.map((conv: any) => {
+            if (conv.id === conversationId) {
+              const lastMsg = conv.messages?.[0];
+              if (lastMsg && lastMsg.id === latestMessage.id) {
+                const currentReads = lastMsg.reads || [];
+                const alreadyRead = currentReads.some((r: any) => r.userId === currentUser.id);
+                return {
+                  ...conv,
+                  messages: [
+                    {
+                      ...lastMsg,
+                      reads: alreadyRead ? currentReads : [...currentReads, { userId: currentUser.id, readAt: new Date().toISOString() }],
+                    },
+                    ...conv.messages.slice(1),
+                  ],
+                };
+              }
+            }
+            return conv;
+          });
+        });
+      }
     }
 
     return () => {
       // Leave room
       socket.emit(SOCKET_EVENTS.LEAVE_CONVERSATION, { conversationId });
     };
-  }, [socket, conversationId, queryClient]);
+  }, [socket, conversationId, queryClient, currentUser]);
 
   const messages = messagesQuery.data?.pages.flatMap((page) => page.data) || [];
 
@@ -60,17 +94,42 @@ export const useMessages = (conversationId: string | null) => {
     if (!socket || !conversationId || !messages.length || !currentUser) return;
 
     const latestMessage = messages[0];
-    if (
-      latestMessage &&
-      latestMessage.senderId !== currentUser.id &&
-      !latestMessage.reads?.some((r: { userId: string; }) => r.userId === currentUser.id)
-    ) {
+    const hasUnread = messages.some((m: any) => 
+      m.senderId !== currentUser.id && !m.reads?.some((r: any) => r.userId === currentUser.id)
+    );
+
+    if (hasUnread) {
       socket.emit(SOCKET_EVENTS.MARK_AS_READ, {
         conversationId,
         messageId: latestMessage.id,
       });
+
+      // Optimistic cache update for unread counts
+      queryClient.setQueryData(['conversations'], (oldConvs: any) => {
+        if (!oldConvs || !Array.isArray(oldConvs)) return oldConvs;
+        return oldConvs.map((conv: any) => {
+          if (conv.id === conversationId) {
+            const lastMsg = conv.messages?.[0];
+            if (lastMsg && lastMsg.id === latestMessage.id) {
+              const currentReads = lastMsg.reads || [];
+              const alreadyRead = currentReads.some((r: any) => r.userId === currentUser.id);
+              return {
+                ...conv,
+                messages: [
+                  {
+                    ...lastMsg,
+                    reads: alreadyRead ? currentReads : [...currentReads, { userId: currentUser.id, readAt: new Date().toISOString() }],
+                  },
+                  ...conv.messages.slice(1),
+                ],
+              };
+            }
+          }
+          return conv;
+        });
+      });
     }
-  }, [socket, conversationId, messages, currentUser]);
+  }, [socket, conversationId, messages, currentUser, queryClient]);
 
   // Send Message Method
   const sendMessage = (content: string, type: 'TEXT' | 'IMAGE' | 'VIDEO' | 'FILE' = 'TEXT', extra: any = {}) => {
