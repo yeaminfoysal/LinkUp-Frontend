@@ -171,7 +171,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ profile, onUpdate 
           onClick={() => openChatMutation.mutate(profile.id)}
           isLoading={openChatMutation.isPending}
           variant="outline"
-          className="flex items-center justify-center w-10 h-10 p-0 rounded-xl border-zinc-200/60 dark:border-zinc-800"
+          className="flex items-center justify-center rounded-xl border-zinc-200/60 dark:border-zinc-800"
           title="Message user"
         >
           <MessageSquare className="w-4 h-4 text-zinc-400" />
@@ -185,7 +185,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({ profile, onUpdate 
             }
           }}
           variant="outline"
-          className="flex items-center justify-center w-10 h-10 p-0 rounded-xl border-zinc-200/60 dark:border-zinc-800 text-zinc-400 hover:text-red-500 hover:border-red-500 dark:hover:text-red-400 dark:hover:border-red-900/50"
+          className="flex items-center justify-center rounded-xl border-zinc-200/60 dark:border-zinc-800 text-zinc-400 hover:text-red-500 hover:border-red-500 dark:hover:text-red-400 dark:hover:border-red-900/50"
           title="Block user"
         >
           <Ban className="w-4 h-4" />

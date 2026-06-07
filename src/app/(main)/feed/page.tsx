@@ -61,7 +61,7 @@ export default function FeedPage() {
       <FeedTabs activeTab={activeTab} onChange={setActiveTab} />
 
       {/* Feed Stream */}
-      <FeedList />
+      <FeedList filter={activeTab} />
 
       {/* Write Post Dialog */}
       <CreatePostModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />

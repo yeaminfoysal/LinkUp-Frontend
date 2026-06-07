@@ -3,13 +3,13 @@ import feedService from '../services/feed.service';
 import toast from '../../../components/ui/Toast';
 import { Post } from '../../../types/post.types';
 
-export const useFeed = () => {
+export const useFeed = (filter?: string) => {
   const queryClient = useQueryClient();
 
   // Get social feed infinite query
   const feedQuery = useInfiniteQuery({
-    queryKey: ['feed'],
-    queryFn: ({ pageParam }) => feedService.getFeed(pageParam as string | undefined),
+    queryKey: ['feed', filter || 'for-you'],
+    queryFn: ({ pageParam }) => feedService.getFeed(filter, pageParam as string | undefined),
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (lastPage) => lastPage.nextCursor || undefined,
   });
@@ -19,8 +19,8 @@ export const useFeed = () => {
     mutationFn: feedService.createPost,
     onSuccess: (newPost) => {
       toast.success('Post shared successfully!');
-      // Prepend the new post to the cache
-      queryClient.setQueryData(['feed'], (old: any) => {
+      // Prepend the new post to the cache for all feed variants
+      queryClient.setQueriesData({ queryKey: ['feed'] }, (old: any) => {
         if (!old) return old;
         const pages = [...old.pages];
         if (pages.length > 0) {
@@ -31,6 +31,9 @@ export const useFeed = () => {
         }
         return { ...old, pages };
       });
+      
+      // Also invalidate userPosts to ensure the profile is updated
+      queryClient.invalidateQueries({ queryKey: ['userPosts'] });
     },
     onError: (err: any) => {
       toast.error(err.response?.data?.message || 'Failed to create post');

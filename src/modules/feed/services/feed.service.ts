@@ -1,8 +1,9 @@
 import api from '../../../services/api';
 
 export const feedService = {
-  getFeed: async (cursor?: string, limit = 20) => {
+  getFeed: async (filter?: string, cursor?: string, limit = 20) => {
     const params: Record<string, any> = { limit };
+    if (filter) params.filter = filter;
     if (cursor) params.cursor = cursor;
     const res = await api.get('/posts/feed', { params });
     return res.data; // returns { items: Post[], nextCursor, hasNextPage }

@@ -8,7 +8,11 @@ import LoadingSkeleton from '../../../components/shared/LoadingSkeleton';
 import EmptyState from '../../../components/shared/EmptyState';
 import { Newspaper } from 'lucide-react';
 
-export const FeedList: React.FC = () => {
+interface FeedListProps {
+  filter: string;
+}
+
+export const FeedList: React.FC<FeedListProps> = ({ filter }) => {
   const {
     posts,
     isLoading,
@@ -16,7 +20,7 @@ export const FeedList: React.FC = () => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useFeed();
+  } = useFeed(filter);
 
   if (isLoading) {
     return <LoadingSkeleton variant="post" count={3} />;
