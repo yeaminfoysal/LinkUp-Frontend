@@ -1,7 +1,7 @@
 <div align="left">
   <h1>LinkUp - Frontend</h1>
   <p>
-    LinkUp is a next-generation professional networking platform designed to seamlessly connect individuals through the power of Artificial Intelligence. By leveraging advanced natural language processing and semantic search, the platform completely redefines how professionals discover and interact with each other. It combines blazing-fast real-time messaging with a highly engaging social feed, all wrapped in a stunning, modern user interface.
+    LinkUp is a professional networking platform designed to connect individuals through Artificial Intelligence and profile matching. It leverages advanced natural language processing for AI-based semantic search alongside a custom-built "Smart Matches" engine that deterministic ranks users by mutual profile details. It combines blazing-fast real-time messaging with a highly engaging social feed, all wrapped in a stunning, modern user interface.
   </p>
 </div>
 
@@ -13,6 +13,11 @@
 Forget simple keyword searches. The platform uses **Natural Language Processing** and **Vector Similarity** to understand exactly what is being searched for. 
 - **Semantic Search:** Descriptive queries like *"a UI designer with 3 years of React experience"* allow the AI to find the perfect match.
 - **AI Match Insights:** Customized, AI-generated reasoning snippets explain exactly *why* a specific profile matched the search criteria.
+
+### 🔥 Smart Matches Connection Finder
+A dedicated connection recommendations page highlights mutual overlaps between users.
+- **Mutual Tag Visualizer:** Highlights matching tags (e.g. `Same University`, `Same Workplace`) directly on recommendation cards using colored visual badges and icons.
+- **Dynamic Connection Actions:** Allows users to send friend requests, instantly cancel pending requests, or view matching profile pages directly from the suggestions grid.
 
 ### 💬 Instant & Seamless Real-Time Chat
 Instant connections with the professional network are maintained without refreshing the page.

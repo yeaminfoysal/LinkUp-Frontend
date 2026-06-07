@@ -1,6 +1,8 @@
+
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import useFriends from '../../../modules/friends/hooks/useFriends';
 import FriendCard from '../../../modules/friends/components/FriendCard';
 import FriendRequestCard from '../../../modules/friends/components/FriendRequestCard';
@@ -9,12 +11,11 @@ import EmptyState from '../../../components/shared/EmptyState';
 import LoadingSkeleton from '../../../components/shared/LoadingSkeleton';
 import UserCard from '../../../components/shared/UserCard';
 import Button from '../../../components/ui/Button';
-import { useQuery } from '@tanstack/react-query';
-import api from '../../../services/api';
-import { Users, UserCheck, Plus, UserPlus, Ban, Check } from 'lucide-react';
+import { Users, UserCheck, Plus, UserPlus, Ban } from 'lucide-react';
 import { Friendship, FriendRequest } from '../../../types/user.types';
 
 export default function FriendsPage() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState('all');
 
   const {
@@ -32,24 +33,12 @@ export default function FriendsPage() {
     removeFriend,
     blockUser,
     unblockUser,
-    sendRequest,
   } = useFriends();
-
-  // Fetch Suggestions
-  const { data: suggestions = [], isLoading: isLoadingSuggestions } = useQuery<any[]>({
-    queryKey: ['suggestionsList'],
-    queryFn: async () => {
-      const res = await api.get('/users/suggestions?limit=8');
-      return res.data;
-    },
-    enabled: activeTab === 'suggestions',
-  });
 
   const isLoading =
     (activeTab === 'all' && isLoadingFriends) ||
     (activeTab === 'pending' && isLoadingPending) ||
     (activeTab === 'sent' && isLoadingSent) ||
-    (activeTab === 'suggestions' && isLoadingSuggestions) ||
     (activeTab === 'blocked' && isLoadingBlocked);
 
   return (
@@ -61,7 +50,7 @@ export default function FriendsPage() {
         </div>
         <div>
           <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">Friends Connection</h2>
-          <p className="text-xs text-zinc-400">Manage your friendships, requests and discovery suggestions.</p>
+          <p className="text-xs text-zinc-400">Manage your friendships, requests and connections.</p>
         </div>
       </div>
 
@@ -103,10 +92,10 @@ export default function FriendsPage() {
               <EmptyState
                 icon={<Users className="w-12 h-12 text-zinc-300 dark:text-zinc-700" />}
                 title="No friends yet"
-                description="Browse suggestions or search for users to connect and start conversations."
+                description="Browse smart matches or search for users to connect and start conversations."
                 action={{
                   label: 'Find Friends',
-                  onClick: () => setActiveTab('suggestions'),
+                  onClick: () => router.push('/matches'),
                 }}
               />
             )
@@ -153,53 +142,6 @@ export default function FriendsPage() {
                 icon={<UserPlus className="w-12 h-12 text-zinc-300 dark:text-zinc-700" />}
                 title="No outgoing requests"
                 description="Any pending friend requests you send to others will be displayed here."
-              />
-            )
-          )}
-
-          {/* SUGGESTIONS */}
-          {activeTab === 'suggestions' && (
-            suggestions.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {suggestions.map((userSuggestion) => {
-                  const isRequestSent = sentRequests.some((req: FriendRequest) => req.receiver?.id === userSuggestion.id || req.receiverId === userSuggestion.id);
-                  
-                  return (
-                    <UserCard
-                      key={userSuggestion.id}
-                      user={userSuggestion}
-                      action={
-                        isRequestSent ? (
-                          <Button
-                            disabled
-                            variant="outline"
-                            size="sm"
-                            className="flex items-center gap-1.5 h-8.5 rounded-lg py-1 px-3 text-xs bg-zinc-100 dark:bg-zinc-800 text-zinc-500 border-transparent cursor-default"
-                          >
-                            <Check className="w-3.5 h-3.5" />
-                            Request Sent
-                          </Button>
-                        ) : (
-                          <Button
-                            onClick={() => sendRequest(userSuggestion.id)}
-                            variant="primary"
-                            size="sm"
-                            className="flex items-center gap-1.5 h-8.5 rounded-lg py-1 px-3 text-xs"
-                          >
-                            <UserPlus className="w-3.5 h-3.5" />
-                            Add Friend
-                          </Button>
-                        )
-                      }
-                    />
-                  );
-                })}
-              </div>
-            ) : (
-              <EmptyState
-                icon={<UserPlus className="w-12 h-12 text-zinc-300 dark:text-zinc-700" />}
-                title="No suggestions found"
-                description="We couldn't locate any suggestions at this moment. Try looking up friends directly."
               />
             )
           )}

@@ -80,9 +80,13 @@ export const PostCard: React.FC<PostCardProps> = ({ post }) => {
       return (
         <div
           onClick={() => setActiveMediaUrl(urls[0])}
-          className="rounded-2xl overflow-hidden border border-zinc-100 dark:border-zinc-900 cursor-zoom-in max-h-96"
+          className="rounded-2xl overflow-hidden border border-zinc-100 dark:border-zinc-900 cursor-zoom-in max-h-[550px] bg-zinc-50/50 dark:bg-zinc-900/20 flex items-center justify-center"
         >
-          <img src={urls[0]} alt="Post attachment" className="w-full h-full object-cover max-h-96 hover:scale-[1.01] transition-transform duration-300" />
+          <img 
+            src={urls[0]} 
+            alt="Post attachment" 
+            className="max-w-full max-h-[550px] w-auto h-auto object-contain hover:scale-[1.01] transition-transform duration-300" 
+          />
         </div>
       );
     }

@@ -14,7 +14,6 @@ export const FriendTabs: React.FC<FriendTabsProps> = ({ activeTab, onChange, pen
     { id: 'all', label: 'All Friends' },
     { id: 'pending', label: 'Pending Requests', count: pendingCount },
     { id: 'sent', label: 'Sent Requests' },
-    { id: 'suggestions', label: 'Suggestions' },
     { id: 'blocked', label: 'Blocked' },
   ];
 

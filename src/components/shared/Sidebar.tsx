@@ -10,6 +10,8 @@ import { useTheme } from 'next-themes';
 import Avatar from './Avatar';
 import useAuth from '../../modules/auth/hooks/useAuth';
 import useFriends from '../../modules/friends/hooks/useFriends';
+import LogoIcon from '../../app/icon.png';
+import UPIcon from '../../app/UP.png';
 import {
   Home,
   MessageSquare,
@@ -24,7 +26,8 @@ import {
   Layers,
   Search,
   Users2,
-  Sparkles
+  Sparkles,
+  Flame
 } from 'lucide-react';
 
 export const Sidebar: React.FC = () => {
@@ -43,6 +46,7 @@ export const Sidebar: React.FC = () => {
 
   const menuItems = [
     { label: 'Home Feed', href: '/feed', icon: Home },
+    { label: 'Smart Matches', href: '/matches', icon: Flame },
     { label: 'AI Discovery', href: '/discovery', icon: Sparkles },
     { label: 'Messages', href: '/messages', icon: MessageSquare, badge: unreadMessagesCount },
     { label: 'Friends', href: '/friends', icon: Users, badge: pendingRequests.length },
@@ -57,13 +61,14 @@ export const Sidebar: React.FC = () => {
     <aside className="w-[280px] h-full border-r border-zinc-150 dark:border-zinc-800 bg-white/70 dark:bg-zinc-950/70 backdrop-blur-md flex flex-col justify-between p-4 flex-shrink-0 z-30 select-none">
       <div className="space-y-6">
         {/* Header Logo */}
-        <div className="flex items-center gap-3 px-2 py-2">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-violet-500/25">
-            <Layers className="w-5 h-5 text-white" />
+        <div className="flex items-center gap-2.5 px-2 py-2">
+          <img src={LogoIcon.src} alt="LinkUp Logo" className="w-9 h-9 rounded-xl object-contain shadow-md shadow-violet-500/10" />
+          <div className="flex items-center select-none">
+            <span className="text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 leading-none">
+              Link
+            </span>
+            <img src={UPIcon.src} alt="Up" className="h-[19px] w-auto ml-1.5 mt-1.5 object-contain" />
           </div>
-          <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-violet-500 to-indigo-500 bg-clip-text text-transparent">
-            LinkUp
-          </span>
         </div>
 
         {/* Navigation List */}
