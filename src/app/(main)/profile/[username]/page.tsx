@@ -95,7 +95,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
   // Saved bookmarked posts list
   const savedPosts = savedData?.items || [];
 
-  const handleUpdateProfile = async (data: { name: string; bio: string; avatar: string }) => {
+  const handleUpdateProfile = async (data: Partial<any>) => {
     return updateProfile(data);
   };
 

@@ -23,7 +23,8 @@ import {
   Sun,
   Layers,
   Search,
-  Users2
+  Users2,
+  Sparkles
 } from 'lucide-react';
 
 export const Sidebar: React.FC = () => {
@@ -42,6 +43,7 @@ export const Sidebar: React.FC = () => {
 
   const menuItems = [
     { label: 'Home Feed', href: '/feed', icon: Home },
+    { label: 'AI Discovery', href: '/discovery', icon: Sparkles },
     { label: 'Messages', href: '/messages', icon: MessageSquare, badge: unreadMessagesCount },
     { label: 'Friends', href: '/friends', icon: Users, badge: pendingRequests.length },
     { label: 'Groups', href: '/groups', icon: Users2 },

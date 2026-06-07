@@ -26,67 +26,148 @@ export const useFriends = () => {
     queryFn: friendsService.getBlockedUsers,
   });
 
-  // Mutations
+  // Mutations with Optimistic Updates
   const sendRequestMutation = useMutation({
     mutationFn: friendsService.sendRequest,
-    onSuccess: () => {
-      toast.success('Friend request sent!');
-      queryClient.invalidateQueries({ queryKey: ['sentRequests'] });
+    onMutate: async (receiverId: string) => {
+      await queryClient.cancelQueries({ queryKey: ['sentRequests'] });
+      const previous = queryClient.getQueryData(['sentRequests']);
+      const optimisticRequest = {
+        id: `temp-${Date.now()}`,
+        receiverId,
+        receiver: { id: receiverId },
+        status: 'PENDING'
+      };
+      queryClient.setQueryData(['sentRequests'], (old: any) => {
+        return old ? [...old, optimisticRequest] : [optimisticRequest];
+      });
+      return { previous };
     },
-    onError: (err: any) => {
+    onError: (err: any, variables, context) => {
+      if (context?.previous) queryClient.setQueryData(['sentRequests'], context.previous);
       toast.error(err.response?.data?.message || 'Failed to send request');
     },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['sentRequests'] });
+    },
+    onSuccess: () => {
+      toast.success('Friend request sent!');
+    }
   });
 
   const acceptRequestMutation = useMutation({
     mutationFn: friendsService.acceptRequest,
-    onSuccess: () => {
-      toast.success('Request accepted! You are now friends.');
+    onMutate: async (requestId: string) => {
+      await queryClient.cancelQueries({ queryKey: ['pendingRequests'] });
+      const previousPending = queryClient.getQueryData(['pendingRequests']);
+      queryClient.setQueryData(['pendingRequests'], (old: any) => {
+        return old ? old.filter((req: any) => req.id !== requestId) : [];
+      });
+      return { previousPending };
+    },
+    onError: (err: any, variables, context) => {
+      if (context?.previousPending) queryClient.setQueryData(['pendingRequests'], context.previousPending);
+      toast.error(err.response?.data?.message || 'Failed to accept request');
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['friends'] });
       queryClient.invalidateQueries({ queryKey: ['pendingRequests'] });
     },
-    onError: (err: any) => {
-      toast.error(err.response?.data?.message || 'Failed to accept request');
-    },
+    onSuccess: () => {
+      toast.success('Request accepted! You are now friends.');
+    }
   });
 
   const rejectRequestMutation = useMutation({
     mutationFn: friendsService.rejectRequest,
-    onSuccess: () => {
-      toast.success('Friend request declined');
-      queryClient.invalidateQueries({ queryKey: ['pendingRequests'] });
+    onMutate: async (requestId: string) => {
+      await queryClient.cancelQueries({ queryKey: ['pendingRequests'] });
+      const previous = queryClient.getQueryData(['pendingRequests']);
+      queryClient.setQueryData(['pendingRequests'], (old: any) => {
+        return old ? old.filter((req: any) => req.id !== requestId) : [];
+      });
+      return { previous };
     },
-    onError: (err: any) => {
+    onError: (err: any, variables, context) => {
+      if (context?.previous) queryClient.setQueryData(['pendingRequests'], context.previous);
       toast.error(err.response?.data?.message || 'Failed to decline request');
     },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['pendingRequests'] });
+    },
+    onSuccess: () => {
+      toast.success('Friend request declined');
+    }
   });
 
   const cancelRequestMutation = useMutation({
     mutationFn: friendsService.cancelRequest,
-    onSuccess: () => {
-      toast.success('Friend request cancelled');
-      queryClient.invalidateQueries({ queryKey: ['sentRequests'] });
+    onMutate: async (requestId: string) => {
+      await queryClient.cancelQueries({ queryKey: ['sentRequests'] });
+      const previous = queryClient.getQueryData(['sentRequests']);
+      queryClient.setQueryData(['sentRequests'], (old: any) => {
+        return old ? old.filter((req: any) => req.id !== requestId) : [];
+      });
+      return { previous };
     },
-    onError: (err: any) => {
+    onError: (err: any, variables, context) => {
+      if (context?.previous) queryClient.setQueryData(['sentRequests'], context.previous);
       toast.error(err.response?.data?.message || 'Failed to cancel request');
     },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['sentRequests'] });
+    },
+    onSuccess: () => {
+      toast.success('Friend request cancelled');
+    }
   });
 
   const removeFriendMutation = useMutation({
     mutationFn: friendsService.removeFriend,
-    onSuccess: () => {
-      toast.success('Friend removed');
-      queryClient.invalidateQueries({ queryKey: ['friends'] });
+    onMutate: async (friendshipId: string) => {
+      await queryClient.cancelQueries({ queryKey: ['friends'] });
+      const previous = queryClient.getQueryData(['friends']);
+      queryClient.setQueryData(['friends'], (old: any) => {
+        return old ? old.filter((f: any) => f.friendshipId !== friendshipId) : [];
+      });
+      return { previous };
     },
-    onError: (err: any) => {
+    onError: (err: any, variables, context) => {
+      if (context?.previous) queryClient.setQueryData(['friends'], context.previous);
       toast.error(err.response?.data?.message || 'Failed to remove friend');
     },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['friends'] });
+    },
+    onSuccess: () => {
+      toast.success('Friend removed');
+    }
   });
 
   const blockMutation = useMutation({
     mutationFn: friendsService.blockUser,
-    onSuccess: () => {
-      toast.success('User blocked');
+    onMutate: async (userId: string) => {
+      await queryClient.cancelQueries({ queryKey: ['friends'] });
+      await queryClient.cancelQueries({ queryKey: ['blockedUsers'] });
+      const previousFriends = queryClient.getQueryData(['friends']);
+      const previousBlocked = queryClient.getQueryData(['blockedUsers']);
+      
+      queryClient.setQueryData(['friends'], (old: any) => {
+        return old ? old.filter((f: any) => f.friend.id !== userId) : [];
+      });
+      const fakeBlockedUser = { id: userId, isBlockedByMe: true };
+      queryClient.setQueryData(['blockedUsers'], (old: any) => {
+        return old ? [...old, fakeBlockedUser] : [fakeBlockedUser];
+      });
+
+      return { previousFriends, previousBlocked };
+    },
+    onError: (err: any, variables, context) => {
+      if (context?.previousFriends) queryClient.setQueryData(['friends'], context.previousFriends);
+      if (context?.previousBlocked) queryClient.setQueryData(['blockedUsers'], context.previousBlocked);
+      toast.error(err.response?.data?.message || 'Failed to block user');
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['friends'] });
       queryClient.invalidateQueries({ queryKey: ['pendingRequests'] });
       queryClient.invalidateQueries({ queryKey: ['sentRequests'] });
@@ -95,24 +176,35 @@ export const useFriends = () => {
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
       queryClient.invalidateQueries({ queryKey: ['conversation'] });
     },
-    onError: (err: any) => {
-      toast.error(err.response?.data?.message || 'Failed to block user');
-    },
+    onSuccess: () => {
+      toast.success('User blocked');
+    }
   });
 
   const unblockMutation = useMutation({
     mutationFn: friendsService.unblockUser,
-    onSuccess: () => {
-      toast.success('User unblocked');
+    onMutate: async (userId: string) => {
+      await queryClient.cancelQueries({ queryKey: ['blockedUsers'] });
+      const previousBlocked = queryClient.getQueryData(['blockedUsers']);
+      queryClient.setQueryData(['blockedUsers'], (old: any) => {
+        return old ? old.filter((u: any) => u.id !== userId) : [];
+      });
+      return { previousBlocked };
+    },
+    onError: (err: any, variables, context) => {
+      if (context?.previousBlocked) queryClient.setQueryData(['blockedUsers'], context.previousBlocked);
+      toast.error(err.response?.data?.message || 'Failed to unblock user');
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['friends'] });
       queryClient.invalidateQueries({ queryKey: ['blockedUsers'] });
       queryClient.invalidateQueries({ queryKey: ['profile'] });
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
       queryClient.invalidateQueries({ queryKey: ['conversation'] });
     },
-    onError: (err: any) => {
-      toast.error(err.response?.data?.message || 'Failed to unblock user');
-    },
+    onSuccess: () => {
+      toast.success('User unblocked');
+    }
   });
 
   return {

@@ -12,7 +12,7 @@ interface EditProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
   profile: any;
-  onSave: (data: { name: string; bio: string; avatar: string }) => Promise<any>;
+  onSave: (data: Partial<any>) => Promise<any>;
 }
 
 export const EditProfileModal: React.FC<EditProfileModalProps> = ({
@@ -24,6 +24,15 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
   const [name, setName] = useState(profile?.name || '');
   const [bio, setBio] = useState(profile?.bio || '');
   const [avatar, setAvatar] = useState(profile?.avatar || '');
+  
+  // AI Discovery Fields
+  const [location, setLocation] = useState(profile?.location || '');
+  const [profession, setProfession] = useState(profile?.profession || '');
+  const [workPlace, setWorkPlace] = useState(profile?.work_place || '');
+  const [university, setUniversity] = useState(profile?.university || '');
+  const [department, setDepartment] = useState(profile?.department || '');
+  const [skills, setSkills] = useState(profile?.skills || '');
+  const [interests, setInterests] = useState(profile?.interests || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { uploadFile, isUploading, uploadProgress } = usePost();
@@ -50,7 +59,18 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      await onSave({ name, bio, avatar });
+      await onSave({ 
+        name, 
+        bio, 
+        avatar,
+        location,
+        profession,
+        work_place: workPlace,
+        university,
+        department,
+        skills,
+        interests
+      });
       toast.success('Profile updated successfully!');
       onClose();
     } catch (err: any) {
@@ -62,7 +82,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Edit Profile" size="md">
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-5 max-h-[70vh] overflow-y-auto p-1 overflow-x-hidden">
         {/* Avatar Upload Container */}
         <div className="flex flex-col items-center gap-3">
           <div className="relative group cursor-pointer" onClick={handleAvatarClick}>
@@ -124,6 +144,104 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
           <div className="text-[10px] text-right text-zinc-400 font-medium">
             {bio.length}/160 characters
           </div>
+        </div>
+
+        {/* Location & Profession */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider block">
+              Location
+            </label>
+            <input
+              type="text"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              className="w-full pl-4 pr-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-black/25 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all text-sm"
+              placeholder="Dhaka, Bangladesh"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider block">
+              Profession
+            </label>
+            <input
+              type="text"
+              value={profession}
+              onChange={(e) => setProfession(e.target.value)}
+              className="w-full pl-4 pr-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-black/25 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all text-sm"
+              placeholder="Software Engineer"
+            />
+          </div>
+        </div>
+
+        {/* Work Place */}
+        <div className="space-y-1.5">
+          <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider block">
+            Work Place
+          </label>
+          <input
+            type="text"
+            value={workPlace}
+            onChange={(e) => setWorkPlace(e.target.value)}
+            className="w-full pl-4 pr-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-black/25 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all text-sm"
+            placeholder="Google"
+          />
+        </div>
+
+        {/* University & Department */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider block">
+              University
+            </label>
+            <input
+              type="text"
+              value={university}
+              onChange={(e) => setUniversity(e.target.value)}
+              className="w-full pl-4 pr-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-black/25 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all text-sm"
+              placeholder="MIT"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider block">
+              Department
+            </label>
+            <input
+              type="text"
+              value={department}
+              onChange={(e) => setDepartment(e.target.value)}
+              className="w-full pl-4 pr-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-black/25 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all text-sm"
+              placeholder="Computer Science"
+            />
+          </div>
+        </div>
+
+        {/* Skills */}
+        <div className="space-y-1.5">
+          <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider block">
+            Skills (comma separated)
+          </label>
+          <input
+            type="text"
+            value={skills}
+            onChange={(e) => setSkills(e.target.value)}
+            className="w-full pl-4 pr-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-black/25 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all text-sm"
+            placeholder="React, Node.js, Python"
+          />
+        </div>
+
+        {/* Interests */}
+        <div className="space-y-1.5">
+          <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider block">
+            Interests (comma separated)
+          </label>
+          <input
+            type="text"
+            value={interests}
+            onChange={(e) => setInterests(e.target.value)}
+            className="w-full pl-4 pr-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-black/25 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all text-sm"
+            placeholder="AI, Startups, Football"
+          />
         </div>
 
         {/* Save button */}
