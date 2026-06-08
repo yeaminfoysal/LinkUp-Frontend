@@ -26,6 +26,18 @@ export const EditPostModal: React.FC<EditPostModalProps> = ({ post, isOpen, onCl
   const [visibility, setVisibility] = useState<any>(post.visibility || 'PUBLIC');
   const [mediaUrls, setMediaUrls] = useState<string[]>(post.mediaUrls || []);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const adjustTextareaHeight = () => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  };
+
+  useEffect(() => {
+    adjustTextareaHeight();
+  }, [content, isOpen]);
 
   // Sync state if post changes
   useEffect(() => {
@@ -115,11 +127,12 @@ export const EditPostModal: React.FC<EditPostModalProps> = ({ post, isOpen, onCl
 
         {/* Text Input */}
         <textarea
+          ref={textareaRef}
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder={`What's on your mind, ${user?.name?.split(' ')[0] || 'there'}?`}
-          rows={4}
-          className="w-full text-sm bg-transparent border-0 resize-none text-zinc-850 dark:text-zinc-100 placeholder-zinc-400 focus:ring-0 focus:outline-none pr-2"
+          rows={3}
+          className="w-full text-sm bg-transparent border-0 resize-none text-zinc-850 dark:text-zinc-100 placeholder-zinc-400 focus:ring-0 focus:outline-none pr-2 overflow-hidden min-h-[80px]"
         />
 
         {/* Image Previews */}

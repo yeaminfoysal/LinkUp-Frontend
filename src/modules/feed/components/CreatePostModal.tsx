@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Modal from '../../../components/ui/Modal';
 import Button from '../../../components/ui/Button';
 import Avatar from '../../../components/shared/Avatar';
@@ -25,6 +25,18 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClos
   const [mediaUrls, setMediaUrls] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const adjustTextareaHeight = () => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  };
+
+  useEffect(() => {
+    adjustTextareaHeight();
+  }, [content, isOpen]);
 
   const handleImageUploadClick = () => {
     fileInputRef.current?.click();
@@ -108,11 +120,12 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({ isOpen, onClos
 
         {/* Text Input */}
         <textarea
+          ref={textareaRef}
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder={`What's on your mind, ${user?.name?.split(' ')[0] || 'there'}?`}
-          rows={4}
-          className="w-full text-sm bg-transparent border-0 resize-none text-zinc-850 dark:text-zinc-100 placeholder-zinc-400 focus:ring-0 focus:outline-none pr-2"
+          rows={3}
+          className="w-full text-sm bg-transparent border-0 resize-none text-zinc-850 dark:text-zinc-100 placeholder-zinc-400 focus:ring-0 focus:outline-none pr-2 overflow-hidden min-h-[80px]"
         />
 
         {/* Image Previews */}
