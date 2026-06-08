@@ -1,19 +1,43 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Flame, Sparkles, RefreshCw, UserCheck } from 'lucide-react';
+import { Flame, Sparkles, RefreshCw, UserCheck, AlertTriangle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import api from '../../../services/api';
 import useFriends from '../../../modules/friends/hooks/useFriends';
 import SuggestionCard from '../../../modules/friends/components/SuggestionCard';
 import EmptyState from '../../../components/shared/EmptyState';
 import Button from '../../../components/ui/Button';
+import Modal from '../../../components/ui/Modal';
+import { useAuthStore } from '../../../store/auth.store';
 
 export default function SmartMatchesPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const user = useAuthStore((state) => state.user);
+  const [showWarningModal, setShowWarningModal] = useState(false);
+  const [isGlobalMode, setIsGlobalMode] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      const profileFields = [
+        user.university,
+        user.profession,
+        user.work_place,
+        user.location,
+        user.interests,
+        user.skills
+      ];
+      const filledCount = profileFields.filter(field => field && field.trim() !== '').length;
+      
+      // If user has filled less than 1 fields, show warning
+      if (filledCount < 1) {
+        setShowWarningModal(true);
+      }
+    }
+  }, [user]);
 
   const {
     sentRequests,
@@ -29,9 +53,9 @@ export default function SmartMatchesPage() {
     isFetching,
     refetch 
   } = useQuery<any[]>({
-    queryKey: ['suggestionsList'],
+    queryKey: ['suggestionsList', isGlobalMode],
     queryFn: async () => {
-      const res = await api.get('/users/suggestions?limit=20');
+      const res = await api.get(`/users/suggestions?limit=20${isGlobalMode ? '&global=true' : ''}`);
       return res.data;
     },
     refetchOnWindowFocus: false,
@@ -133,17 +157,68 @@ export default function SmartMatchesPage() {
             >
               <EmptyState
                 icon={<Sparkles className="w-14 h-14 text-zinc-300 dark:text-zinc-700 animate-pulse" />}
-                title="No Smart Matches Found"
-                description="We couldn't find any users matching your details. Try filling out or expanding your profile info (workplace, university, profession, location, skills, interests) to discover connections."
+                title={isGlobalMode ? "No Global Suggestions" : "No Smart Matches Found"}
+                description={isGlobalMode ? "We couldn't find any users to suggest right now." : "We couldn't find any users matching your details. Try filling out or expanding your profile info (workplace, university, profession, location, skills, interests) to discover connections."}
                 action={{
                   label: 'Update My Profile',
-                  onClick: () => router.push('/settings'),
+                  onClick: () => router.push(`/profile/${user?.username}`),
                 }}
               />
             </motion.div>
           )}
         </AnimatePresence>
       )}
+
+      {/* Profile Warning Modal */}
+      <Modal
+        isOpen={showWarningModal}
+        onClose={() => setShowWarningModal(false)}
+      >
+        <div className="flex flex-col items-center text-center space-y-4 py-4">
+          <div className="w-16 h-16 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500 mb-2">
+            <AlertTriangle className="w-8 h-8" />
+          </div>
+          <h4 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
+            Incomplete Profile
+          </h4>
+          <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
+            To get accurate and meaningful <strong>Smart Matches</strong>, our AI needs to know more about you.
+            <br /><br />
+            Please add your <span className="font-semibold text-violet-500">university, profession, workplace, location, interests, and skills</span> in your profile settings.
+          </p>
+          <div className="w-full pt-4 flex flex-col gap-3">
+            <div className="flex flex-col sm:flex-row gap-3 w-full">
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setShowWarningModal(false);
+                  setIsGlobalMode(true);
+                }}
+                className="flex-1"
+              >
+                Explore Global
+              </Button>
+              <Button
+                variant="primary"
+                onClick={() => {
+                  setShowWarningModal(false);
+                  router.push(`/profile/${user?.username}`);
+                }}
+                className="flex-1"
+              >
+                Update Profile
+              </Button>
+            </div>
+            <Button
+              variant="outline"
+              onClick={() => setShowWarningModal(false)}
+              className="w-full"
+            >
+              Maybe Later
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

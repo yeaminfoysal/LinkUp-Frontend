@@ -17,7 +17,7 @@ export const Avatar: React.FC<SharedAvatarProps> = ({ isOnline = false, ...props
   };
 
   return (
-    <div className="relative inline-block">
+    <div className="relative inline-flex shrink-0">
       <BaseAvatar {...props} />
       {isOnline && (
         <span
