@@ -3,6 +3,10 @@
   <p>
     LinkUp is a professional networking platform designed to connect individuals through Artificial Intelligence and profile matching. It leverages advanced natural language processing for AI-based semantic search alongside a custom-built "Smart Matches" engine that deterministic ranks users by mutual profile details. It combines blazing-fast real-time messaging with a highly engaging social feed, all wrapped in a stunning, modern user interface.
   </p>
+  <p>
+    <strong>🌍 Live Application:</strong> <a href="https://link-up-seven-iota.vercel.app">https://link-up-seven-iota.vercel.app</a><br/>
+    <strong>⚙️ Backend Repository:</strong> <a href="https://github.com/yeaminfoysal/LinkUp-Backend">LinkUp-Backend</a>
+  </p>
 </div>
 
 ---

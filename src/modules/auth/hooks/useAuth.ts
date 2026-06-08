@@ -1,11 +1,12 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import authService from '../services/auth.service';
 import { useAuthStore } from '../../../store/auth.store';
-import { connectSocket } from '../../../socket/socket.client';
+import { connectSocket, disconnectSocket } from '../../../socket/socket.client';
 
 export const useAuth = () => {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { setTokens, setUser, logout: clearAuthStore } = useAuthStore();
 
   const loginMutation = useMutation({
@@ -42,11 +43,15 @@ export const useAuth = () => {
     mutationFn: authService.logout,
     onSuccess: () => {
       clearAuthStore();
+      queryClient.clear();
+      disconnectSocket();
       router.push('/auth/login');
     },
     onError: () => {
       // Even if network fails, force clean client and redirect
       clearAuthStore();
+      queryClient.clear();
+      disconnectSocket();
       router.push('/auth/login');
     }
   });

@@ -182,7 +182,7 @@ export const MessageInput: React.FC<MessageInputProps> = ({ onSend, onKeyPress }
           type="button"
           onClick={handleSend}
           disabled={!text.trim() && !attachment}
-          className="p-2.5 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white rounded-xl shadow-md shadow-violet-500/10 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none flex-shrink-0"
+          className="p-2.5 bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 hover:from-cyan-400 hover:via-blue-500 hover:to-purple-500 text-white rounded-xl shadow-md shadow-blue-500/10 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none flex-shrink-0"
         >
           <Send className="w-4.5 h-4.5" />
         </button>

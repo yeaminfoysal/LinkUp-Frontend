@@ -54,12 +54,14 @@ export const SuggestionCard: React.FC<SuggestionCardProps> = ({
 }) => {
   // Color styling based on score
   const getScoreColor = (score: number) => {
+    if (score === 0) return 'from-blue-500 to-cyan-500 text-blue-600 dark:text-blue-400 bg-blue-500/10 border-blue-500/20';
     if (score >= 80) return 'from-emerald-500 to-teal-500 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/20';
     if (score >= 60) return 'from-amber-500 to-orange-500 text-amber-600 dark:text-amber-400 bg-amber-500/10 border-amber-500/20';
     return 'from-violet-500 to-indigo-500 text-violet-600 dark:text-violet-400 bg-violet-500/10 border-violet-500/20';
   };
 
   const getRingColor = (score: number) => {
+    if (score === 0) return 'ring-blue-500 shadow-blue-500/20';
     if (score >= 80) return 'ring-emerald-500 shadow-emerald-500/20';
     if (score >= 60) return 'ring-amber-500 shadow-amber-500/20';
     return 'ring-violet-500 shadow-violet-500/20';
@@ -116,16 +118,23 @@ export const SuggestionCard: React.FC<SuggestionCardProps> = ({
         {/* Top bar with avatar and match score */}
         <div className="flex items-start justify-between">
           <Link href={`/profile/${user.username}`} className="block">
-            <div className={`relative ring-2 ring-offset-2 dark:ring-offset-zinc-950 rounded-full transition-transform duration-300 group-hover:scale-105 ${getRingColor(user.matchScore)}`}>
+            <div className={`relative inline-flex shrink-0 ring-2 ring-offset-2 dark:ring-offset-zinc-950 rounded-full transition-transform duration-300 group-hover:scale-105 ${getRingColor(user.matchScore)}`}>
               <Avatar src={user.avatar} name={user.name} size="md" isOnline={user.isOnline} />
             </div>
           </Link>
 
           {/* Glowing Match Badge */}
-          <div className={`flex items-center gap-1 px-3 py-1 rounded-full border text-xs font-bold shadow-sm ${getScoreColor(user.matchScore)}`}>
-            <span className="animate-pulse">🔥</span>
-            {user.matchScore}% Match
-          </div>
+          {user.matchScore > 0 ? (
+            <div className={`flex items-center gap-1 px-3 py-1 rounded-full border text-xs font-bold shadow-sm ${getScoreColor(user.matchScore)}`}>
+              <span className="animate-pulse">🔥</span>
+              {user.matchScore}% Match
+            </div>
+          ) : (
+            <div className={`flex items-center gap-1 px-3 py-1 rounded-full border text-xs font-bold shadow-sm ${getScoreColor(user.matchScore)}`}>
+              <span className="animate-pulse">🌍</span>
+              Global
+            </div>
+          )}
         </div>
 
         {/* User identification */}
