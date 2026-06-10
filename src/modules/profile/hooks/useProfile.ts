@@ -33,6 +33,7 @@ export const useProfile = (username: string) => {
       queryClient.invalidateQueries({ queryKey: ['profile', updatedUser.username] });
       queryClient.invalidateQueries({ queryKey: ['userPosts', updatedUser.id] });
       queryClient.invalidateQueries({ queryKey: ['feed'] });
+      queryClient.invalidateQueries({ queryKey: ['suggestionsList'] });
     },
     onError: (err: any) => {
       toast.error(err.response?.data?.message || 'Failed to update profile');
