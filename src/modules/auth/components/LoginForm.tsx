@@ -80,9 +80,9 @@ export const LoginForm = () => {
             <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider block">
               Password
             </label>
-            <a href="#" className="text-xs font-semibold text-violet-500 hover:text-violet-600 transition-colors">
+            <Link href="/auth/forgot-password" className="text-xs font-semibold text-violet-500 hover:text-violet-600 transition-colors">
               Forgot password?
-            </a>
+            </Link>
           </div>
           <div className="relative">
             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400" />

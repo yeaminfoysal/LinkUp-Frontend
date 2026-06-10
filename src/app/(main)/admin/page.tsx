@@ -28,7 +28,7 @@ export default function AdminDashboardPage() {
   });
 
   return (
-    <div className="space-y-6 w-full max-w-[1600px] mx-auto">
+    <div className="space-y-6 w-full max-w-[1600px] mx-auto pb-6">
       <div className="flex items-center justify-between bg-white dark:bg-zinc-900 p-6 rounded-2xl shadow-sm border border-zinc-100 dark:border-zinc-800">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 rounded-xl bg-violet-500/10 flex items-center justify-center text-violet-500">

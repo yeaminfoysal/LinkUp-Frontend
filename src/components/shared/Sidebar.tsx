@@ -51,7 +51,6 @@ export const Sidebar: React.FC = () => {
     { label: 'Home Feed', href: '/feed', icon: Home },
     { label: 'Smart Matches', href: '/matches', icon: Flame },
     { label: 'AI Discovery', href: '/discovery', icon: Sparkles },
-    ...(user?.role === 'SUPER_ADMIN' ? [{ label: 'Dashboard', href: '/admin', icon: LayoutDashboard }] : []),
     { label: 'Messages', href: '/messages', icon: MessageSquare, badge: unreadMessagesCount },
     { label: 'Friends', href: '/friends', icon: Users, badge: pendingRequests.length },
     { label: 'Groups', href: '/groups', icon: Users2 },
@@ -59,6 +58,7 @@ export const Sidebar: React.FC = () => {
     { label: 'Saved', href: '/saved', icon: Bookmark },
     { label: 'Profile', href: `/profile/${user?.username || ''}`, icon: User },
     { label: 'Settings', href: '/settings', icon: Settings },
+    ...(user?.role === 'SUPER_ADMIN' ? [{ label: 'Dashboard', href: '/admin', icon: LayoutDashboard }] : []),
   ];
 
   return (
@@ -85,11 +85,10 @@ export const Sidebar: React.FC = () => {
                 key={item.label}
                 href={item.href}
                 onClick={() => setSidebarOpen(false)}
-                className={`flex items-center justify-between px-3.5 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
-                  isActive
-                    ? 'bg-violet-500/10 text-violet-500 dark:text-violet-400 font-bold'
-                    : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100/60 dark:hover:bg-zinc-900/40 hover:text-zinc-900 dark:hover:text-zinc-100'
-                }`}
+                className={`flex items-center justify-between px-3.5 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${isActive
+                  ? 'bg-violet-500/10 text-violet-500 dark:text-violet-400 font-bold'
+                  : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100/60 dark:hover:bg-zinc-900/40 hover:text-zinc-900 dark:hover:text-zinc-100'
+                  }`}
               >
                 <div className="flex items-center gap-3">
                   <Icon className={`w-5 h-5 ${isActive ? 'text-violet-500 dark:text-violet-400' : 'text-zinc-400'}`} />

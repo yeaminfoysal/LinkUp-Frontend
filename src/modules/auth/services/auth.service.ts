@@ -24,5 +24,15 @@ export const authService = {
       useAuthStore.getState().logout();
     }
   },
+
+  forgotPassword: async (email: string) => {
+    const response = await api.post('/auth/forgot-password', { email });
+    return response.data;
+  },
+
+  resetPassword: async (token: string, password: string) => {
+    const response = await api.post('/auth/reset-password', { token, password });
+    return response.data;
+  },
 };
 export default authService;
