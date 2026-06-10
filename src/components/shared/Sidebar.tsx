@@ -27,7 +27,8 @@ import {
   Search,
   Users2,
   Sparkles,
-  Flame
+  Flame,
+  LayoutDashboard
 } from 'lucide-react';
 
 export const Sidebar: React.FC = () => {
@@ -44,10 +45,13 @@ export const Sidebar: React.FC = () => {
   const { unreadMessagesCount, unreadNotificationsCount } = useUnreadCount();
   const { pendingRequests } = useFriends();
 
+  console.log(user)
+
   const menuItems = [
     { label: 'Home Feed', href: '/feed', icon: Home },
     { label: 'Smart Matches', href: '/matches', icon: Flame },
     { label: 'AI Discovery', href: '/discovery', icon: Sparkles },
+    ...(user?.role === 'SUPER_ADMIN' ? [{ label: 'Dashboard', href: '/admin', icon: LayoutDashboard }] : []),
     { label: 'Messages', href: '/messages', icon: MessageSquare, badge: unreadMessagesCount },
     { label: 'Friends', href: '/friends', icon: Users, badge: pendingRequests.length },
     { label: 'Groups', href: '/groups', icon: Users2 },

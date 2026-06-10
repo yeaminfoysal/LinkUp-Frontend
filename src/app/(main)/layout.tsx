@@ -17,6 +17,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   const router = useRouter();
   const pathname = usePathname();
   const isChatDetailPage = pathname?.startsWith('/messages/') && pathname !== '/messages';
+  const isAdminPage = pathname?.startsWith('/admin');
   const { unreadMessagesCount, unreadNotificationsCount } = useUnreadCount();
   const { user } = useAuthStore();
   const { isSidebarOpen, toggleSidebar, setSidebarOpen } = useUIStore();
@@ -83,16 +84,16 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
 
         {/* Dynamic Page Component */}
         <main className={`flex-1 min-h-0 overflow-y-auto bg-zinc-50 dark:bg-zinc-950 ${
-          isChatDetailPage ? 'p-0 md:p-6' : 'p-4 md:p-6 pb-20 md:pb-6'
+          isChatDetailPage || isAdminPage ? 'p-0 md:p-6' : 'p-4 md:p-6 pb-20 md:pb-6'
         }`}>
-          <div className={isChatDetailPage ? 'w-full h-full' : 'max-w-4xl mx-auto w-full h-full'}>
+          <div className={isChatDetailPage || isAdminPage ? 'w-full h-full' : 'max-w-4xl mx-auto w-full h-full'}>
             {children}
           </div>
         </main>
       </div>
 
-      {/* Right Context Panel - Hidden on Tablet/Mobile */}
-      <RightPanel />
+      {/* Right Context Panel - Hidden on Tablet/Mobile/Admin */}
+      {!isAdminPage && <RightPanel />}
 
       {/* Mobile Bottom Navbar (Visible only on Mobile, hidden in chat details) */}
       {!isChatDetailPage && (
