@@ -1,13 +1,14 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Flame, Sparkles, RefreshCw, UserCheck, AlertTriangle } from 'lucide-react';
+import { Flame, Sparkles, RefreshCw, AlertTriangle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import api from '../../../services/api';
 import useFriends from '../../../modules/friends/hooks/useFriends';
 import SuggestionCard from '../../../modules/friends/components/SuggestionCard';
+import type { SuggestionUser } from '../../../modules/friends/components/SuggestionCard';
 import EmptyState from '../../../components/shared/EmptyState';
 import Button from '../../../components/ui/Button';
 import Modal from '../../../components/ui/Modal';
@@ -17,27 +18,25 @@ export default function SmartMatchesPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const user = useAuthStore((state) => state.user);
-  const [showWarningModal, setShowWarningModal] = useState(false);
+  const [warningDismissed, setWarningDismissed] = useState(false);
   const [isGlobalMode, setIsGlobalMode] = useState(false);
 
-  useEffect(() => {
-    if (user) {
-      const profileFields = [
+  // Derived during render — no effect needed. Show the warning until the
+  // user dismisses it, when their profile has no matchable fields filled in.
+  const profileFields = user
+    ? [
         user.university,
         user.profession,
         user.work_place,
         user.location,
         user.interests,
-        user.skills
-      ];
-      const filledCount = profileFields.filter(field => field && field.trim() !== '').length;
-      
-      // If user has filled less than 1 fields, show warning
-      if (filledCount < 1) {
-        setShowWarningModal(true);
-      }
-    }
-  }, [user]);
+        user.skills,
+      ]
+    : [];
+  const filledCount = profileFields.filter(
+    (field) => field && field.trim() !== ''
+  ).length;
+  const showWarningModal = !!user && !warningDismissed && filledCount < 1;
 
   const {
     sentRequests,
@@ -47,12 +46,12 @@ export default function SmartMatchesPage() {
   } = useFriends();
 
   // Fetch Smart Matches Suggestions
-  const { 
-    data: suggestions = [], 
-    isLoading: isLoadingSuggestions, 
+  const {
+    data: suggestions = [],
+    isLoading: isLoadingSuggestions,
     isFetching,
-    refetch 
-  } = useQuery<any[]>({
+    refetch
+  } = useQuery<SuggestionUser[]>({
     queryKey: ['suggestionsList', isGlobalMode],
     queryFn: async () => {
       const res = await api.get(`/users/suggestions?limit=20${isGlobalMode ? '&global=true' : ''}`);
@@ -85,7 +84,7 @@ export default function SmartMatchesPage() {
               Smart Matches <span className="text-sm px-2.5 py-0.5 rounded-full bg-violet-500/10 text-violet-600 dark:text-violet-400 font-bold border border-violet-500/10">PRO</span>
             </h2>
             <p className="text-sm text-zinc-500 dark:text-zinc-400 max-w-xl">
-              Deterministic, real-time matching based on shared university, workplace, profession, location, skills, and interests.
+              Real-time matching based on mutual friends, shared university, workplace, profession, location, skills, and interests, boosted by AI profile similarity.
             </p>
           </div>
         </div>
@@ -131,7 +130,8 @@ export default function SmartMatchesPage() {
               {suggestions.map((candidate) => {
                 // Determine request statuses
                 const sentReq = sentRequests.find(
-                  (req: any) => req.receiver?.id === candidate.id || req.receiverId === candidate.id
+                  (req: { id: string; receiverId?: string; receiver?: { id: string } }) =>
+                    req.receiver?.id === candidate.id || req.receiverId === candidate.id
                 );
                 const isRequestSent = !!sentReq;
                 const requestId = sentReq ? sentReq.id : null;
@@ -172,7 +172,7 @@ export default function SmartMatchesPage() {
       {/* Profile Warning Modal */}
       <Modal
         isOpen={showWarningModal}
-        onClose={() => setShowWarningModal(false)}
+        onClose={() => setWarningDismissed(true)}
       >
         <div className="flex flex-col items-center text-center space-y-4 py-4">
           <div className="w-16 h-16 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-500 mb-2">
@@ -191,7 +191,7 @@ export default function SmartMatchesPage() {
               <Button
                 variant="secondary"
                 onClick={() => {
-                  setShowWarningModal(false);
+                  setWarningDismissed(true);
                   setIsGlobalMode(true);
                 }}
                 className="flex-1"
@@ -201,7 +201,7 @@ export default function SmartMatchesPage() {
               <Button
                 variant="primary"
                 onClick={() => {
-                  setShowWarningModal(false);
+                  setWarningDismissed(true);
                   router.push(`/profile/${user?.username}`);
                 }}
                 className="flex-1"
@@ -211,7 +211,7 @@ export default function SmartMatchesPage() {
             </div>
             <Button
               variant="outline"
-              onClick={() => setShowWarningModal(false)}
+              onClick={() => setWarningDismissed(true)}
               className="w-full"
             >
               Maybe Later

@@ -3,40 +3,43 @@
 import React from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { 
-  UserPlus, 
-  X, 
-  MapPin, 
-  Briefcase, 
-  GraduationCap, 
-  Layers, 
-  Code, 
-  Heart, 
-  Sparkles 
+import {
+  UserPlus,
+  X,
+  MapPin,
+  Briefcase,
+  GraduationCap,
+  Layers,
+  Code,
+  Heart,
+  Sparkles,
+  Users
 } from 'lucide-react';
 import Avatar from '../../../components/shared/Avatar';
 import Button from '../../../components/ui/Button';
 
+export interface SuggestionUser {
+  id: string;
+  name: string;
+  username: string;
+  avatar: string | null;
+  bio: string | null;
+  location: string | null;
+  university: string | null;
+  department: string | null;
+  skills: string | null;
+  interests: string | null;
+  profession: string | null;
+  work_place: string | null;
+  isOnline: boolean;
+  matchScore: number;
+  matchReason: string;
+  matchingFields: string[];
+  matchingDetails: Array<{ field: string; value: string; label: string }>;
+}
+
 interface SuggestionCardProps {
-  user: {
-    id: string;
-    name: string;
-    username: string;
-    avatar: string | null;
-    bio: string | null;
-    location: string | null;
-    university: string | null;
-    department: string | null;
-    skills: string | null;
-    interests: string | null;
-    profession: string | null;
-    work_place: string | null;
-    isOnline: boolean;
-    matchScore: number;
-    matchReason: string;
-    matchingFields: string[];
-    matchingDetails: Array<{ field: string; value: string; label: string }>;
-  };
+  user: SuggestionUser;
   isRequestSent: boolean;
   requestId: string | null;
   onSendRequest: (userId: string) => void;
@@ -70,6 +73,8 @@ export const SuggestionCard: React.FC<SuggestionCardProps> = ({
   // Get matching icons for fields
   const getFieldIcon = (field: string) => {
     switch (field) {
+      case 'mutual_friends':
+        return <Users className="w-3.5 h-3.5" />;
       case 'university':
         return <GraduationCap className="w-3.5 h-3.5" />;
       case 'work_place':
@@ -90,6 +95,8 @@ export const SuggestionCard: React.FC<SuggestionCardProps> = ({
 
   const getBadgeStyle = (field: string) => {
     switch (field) {
+      case 'mutual_friends':
+        return 'bg-violet-50 dark:bg-violet-950/20 text-violet-700 dark:text-violet-300 border-violet-100 dark:border-violet-900/30';
       case 'university':
       case 'department':
         return 'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-300 border-emerald-100 dark:border-emerald-900/30';
