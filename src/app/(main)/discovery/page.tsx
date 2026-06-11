@@ -7,7 +7,7 @@ import { MatchCard } from '../../../components/modules/discovery/MatchCard';
 import { DiscoverySkeleton } from '../../../components/modules/discovery/DiscoverySkeleton';
 import { DiscoveryEmptyState } from '../../../components/modules/discovery/DiscoveryEmptyState';
 import { useAISearch } from '../../../hooks/useAIDiscovery';
-import { Sparkles, Clock } from 'lucide-react';
+import { AxiosError } from 'axios';
 
 export default function AIDiscoveryPage() {
   const [query, setQuery] = useState('');
@@ -23,9 +23,9 @@ export default function AIDiscoveryPage() {
 
   const getErrorToast = () => {
     if (!error) return null;
-    const axiosError = error as any;
-    if (axiosError?.response?.status === 429) {
-      return "Hourly AI search limit reached. Please try again later.";
+    const axiosError = error as AxiosError;
+    if (axiosError.response?.status === 429) {
+      return "Too many searches. Please wait a minute and try again.";
     }
     return "Failed to search. Please try again.";
   };

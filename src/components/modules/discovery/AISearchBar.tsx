@@ -10,10 +10,10 @@ interface AISearchBarProps {
 }
 
 const placeholders = [
-  "Try 'React developers in Dhaka'...",
-  "Find a 'Machine Learning expert'...",
-  "Search for 'UI/UX designers open to work'...",
-  "Look up 'Node.js backend engineers'..."
+  "Try 'Software engineer from Dhaka'...",
+  "Look up 'Full Stack Developer from Sylhet'...",
+  "Try 'Project manager who work in ATI Limited'...",
+  "Search for 'Web developer who have interest in AI'...",
 ];
 
 export const AISearchBar: React.FC<AISearchBarProps> = ({ value, onChange, onSubmit, isLoading }) => {
